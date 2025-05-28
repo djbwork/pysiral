@@ -306,15 +306,23 @@ procsteps:
 
     # Add sea ice density to the Level-2 object
     # Base values for pure ice type uncertainties from Alexandrov et al., 2010, The Cryosphere
-    -   module: sit
-        pyclass: AlexandrovSeaIceDensity
-        options:
-            fyi_density: 916.7
-            myi_density: 882.0
-            uncertainty:
-                fyi_density: 35.7
-                myi_density: 23.0
+    # -   module: sit
+    #     pyclass: AlexandrovSeaIceDensity
+    #     options:
+    #         fyi_density: 916.7
+    #         myi_density: 882.0
+    #         uncertainty:
+    #             fyi_density: 35.7
+    #             myi_density: 23.0
 
+    -   module: sit
+        pyclass: SeasonalSouthernSeaIceDensity
+        options:
+            winter_density: 920.0  
+            spring_density: 915.0
+            summer_density: 875.0
+            autumn_density: 900.0
+            uncertainty_fixed_value: 20.
     # Algorithm for getting sea ice thickness from other l2 parameters
     -   module: sit
         pyclass: SeaIceFreeboard2SIT

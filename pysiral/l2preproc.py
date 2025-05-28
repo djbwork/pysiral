@@ -44,6 +44,14 @@ class Level2PreProcessor(DefaultLoggingClass):
 
         # Add all l2i objects to the l2p container.
         # NOTE: Only memory is the limit
+        filter_type = self._job._auxproc.procsteps.options['filter_type'] 
+        if filter_type == '23':
+            logger.info("The chosen filter for the MIZ is the adapted one from FB derivatives")
+        elif filter_type == '2':
+            logger.info("The chosen filter for the MIZ is the original one from PYSIRAL")
+        else:
+            logger.error("The chosen filter for the MIZ doesn't exist")
+
         for l2i_file in l2i_files:
             try:
                 l2i = L2iNCFileImport(l2i_file)
@@ -74,10 +82,14 @@ class Level2PreProcessor(DefaultLoggingClass):
                 spacing]
             
             if  not np.isnan(l2i.sea_ice_freeboard).all() == True:
-                miz = MarginalIceZoneFilterFlag(self._job._auxproc.procsteps)
-                filter_flag, spurious_flag, _ = miz.get_miz_filter_flag(*args)
-                sum_flag_miz = l2i.flag_miz + spurious_flag
-                idx = np.where(sum_flag_miz==5)[0]
+                if filter_type == '23':
+                    miz = MarginalIceZoneFilterFlag(self._job._auxproc.procsteps)
+                    filter_flag, spurious_flag, _ = miz.get_miz_filter_flag(*args)
+                    sum_flag_miz = l2i.flag_miz + spurious_flag
+                    idx = np.where(sum_flag_miz==5)[0]
+                elif filter_type == '2':
+                    idx = np.where(l2i.flag_miz==2)[0]
+                
                 l2i.sea_ice_thickness[idx] = np.nan
             
             l2p.append_l2i(l2i)

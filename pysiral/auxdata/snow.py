@@ -815,7 +815,6 @@ class ICDCSouthernClimatology(AuxdataBaseClass):
                 rho_s_summer = self.cfg.options.summer_density
                 rho_s_autumn = self.cfg.options.autumn_density
         
-                # Scales with MYI fraction
                 data_seasons = {
                     "date": ["15-07", "15-10", "15-01", "15-04", "15-07"],
                     "density": [rho_s_winter, rho_s_spring, rho_s_summer, rho_s_autumn, rho_s_winter],

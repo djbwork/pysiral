@@ -1,11 +1,13 @@
 metadata:
-    label: "ESA CCI+ Sentinel-3 southern hemisphere sea-ice thickness climate data record v4.0-preview.1"
-    product_line: SOSIMBA
+    label: "ESA CCI+ Sentinel-3 northern hemisphere sea-ice thickness climate data record v4.0-preview.1"
+    product_line: cci
     record_type: cdr
     platform: sentinel3a
-    version: v4p0-preview1-ss
-    file_version_tag: "v4p0-preview.1-ss"
-    hemisphere: south
+    version: v4p0-preview1
+    file_version_tag: "v4p0-preview.1"
+    hemisphere: north
+
+
 
 # --- Ingest auxiliary data ---
 #
@@ -27,13 +29,13 @@ auxdata:
     # NOTE: It is advisable to do this in the beginning, since the following auxiliary data types can
     #       be modified depending on region code
     - region:
-        name: antarctic_seas
+        name: nsidc_2021
         options: null
 
     - mss:
         name: dtu21
         options:
-            latitude_range: [-90.0, -45.]
+            latitude_range: [45.0, 90.0]
 
     - sic:
         name: c3s
@@ -42,30 +44,25 @@ auxdata:
             exception_on_error: False
 
     - sitype:
-         name: fyi_default
-         options:
-             uncertainty_default: 0.1
+        name: c3s
+        options:
+            version: v3p0
+            fill_valid_sic_gaps: True
+            exception_on_error: False
 
-    #- snow:
-    #     name: icdc_climatology_south
-    #     options:
-    #         snow_density: 300.
-    #         snow_density_uncertainty: 50.
-    #         smooth_snow_depth: true
-    #         smooth_filter_width_m: 25000.0
-    #         exception_on_error: True
     - snow:
-         name: icdc_climatology_south
-         options:
-             smooth_snow_depth: true
-             smooth_filter_width_m: 25000.0
-             exception_on_error: True
-             winter_density: 330.
-             spring_density: 310.
-             summer_density: 360.
-             autumn_density: 350.
-             snow_density_uncertainty: 50.
-             snow_density: seasonal_density_fons_2023
+        name: warren99
+        options:
+            daily_scaling: True
+            fyi_correction_factor: 0.5
+            exception_on_error: False
+
+    # Note: The snow density in this class will overwrite the snow density
+    #       from the W99/AMSR2 climatology (this is intended)
+    - snow:
+            name: snow_density_seasonal_mallett
+            options:
+                snow_density_uncertainty: 50.
 
 
 # --- Level-2 processor steps ---
@@ -306,23 +303,14 @@ procsteps:
 
     # Add sea ice density to the Level-2 object
     # Base values for pure ice type uncertainties from Alexandrov et al., 2010, The Cryosphere
-    # -   module: sit
-    #     pyclass: AlexandrovSeaIceDensity
-    #     options:
-    #         fyi_density: 916.7
-    #         myi_density: 882.0
-    #         uncertainty:
-    #             fyi_density: 35.7
-    #             myi_density: 23.0
-
     -   module: sit
-        pyclass: SeasonalSouthernSeaIceDensity
+        pyclass: AlexandrovSeaIceDensity
         options:
-            winter_density: 920.0  
-            spring_density: 915.0
-            summer_density: 875.0
-            autumn_density: 900.0
-            uncertainty_fixed_value: 20.
+            fyi_density: 916.7
+            myi_density: 882.0
+            uncertainty:
+                fyi_density: 35.7
+                myi_density: 23.0
 
     # Algorithm for getting sea ice thickness from other l2 parameters
     -   module: sit
@@ -344,7 +332,7 @@ procsteps:
         pyclass: L2SeaIceDraft
         options: {}
 
-        # Add a filter flag to detect anomalous freeboards in the marginal ice zone
+    # Add a filter flag to detect anomalous freeboards in the marginal ice zone
     -   module: filter
         pyclass: MarginalIceZoneFilterFlag
         options:
