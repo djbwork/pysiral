@@ -150,6 +150,18 @@ mss:
             pwdfile: null
             type: static
             link: /pub/DTU21/1_MIN/DTU21MSS_1min.mss.nc
+    dtu25:
+        pyclass: DTU1MinGrid
+        long_name: DTU25 mean sea surface (2km grid)
+        local_repository: dtu25
+        filename: DTU25MSS_2km.nc
+        options: null
+        source:
+            transfer: ftp
+            server: ftp.space.dtu.dk
+            pwdfile: null
+            type: static
+            link: /pub/DTU21/1_MIN/DTU21MSS_1min.mss.nc
 
 # Mean dynamic topography class
 mdt:
