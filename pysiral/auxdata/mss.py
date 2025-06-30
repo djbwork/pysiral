@@ -89,7 +89,7 @@ class DTU1MinGrid(AuxdataBaseClass):
         iy = (latitude - mss_lat_min)/mss_lat_step
 
         # Extract and return the elevation along the track
-        mss_track_elevation = ndimage.map_coordinates(self.elevation, [iy, ix])
+        mss_track_elevation = ndimage.map_coordinates(self.elevation, [iy, ix], cval=np.nan)
 
         # Register auxdata variable
         self.register_auxvar("mss", "mean_sea_surface", mss_track_elevation, None)

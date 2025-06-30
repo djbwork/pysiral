@@ -525,6 +525,7 @@ class SLASmoothedLinear(Level2ProcessorStep, SLABaseFunctionality):
         use_ocean_wfm = self.cfg.options.get("use_ocean_wfm", False)
         ssh_tiepoint_indices = self.get_ssh_tiepoints_indices(l2.surface_type, l2.elev, use_ocean_wfm)
 
+
         # Legacy MSS offset filter
         # Deprecated: Not a reliable filter, `tiepoint_elevation_filter` should be used
         # instead
@@ -544,6 +545,7 @@ class SLASmoothedLinear(Level2ProcessorStep, SLABaseFunctionality):
                 l2.footprint_spacing,
                 **tiepoint_elevation_filter
             )
+
 
         # Verification that there is any ssh tie points
         # -> Will return all NaN sla if not
