@@ -114,7 +114,7 @@ mss:
         pyclass: DTU1MinGrid
         long_name: DTU15 mean sea surface (1 minute grid)
         local_repository: dtu15
-        filename: DTU15MSS_1min.nc
+        filename: output_file_DTU15.nc #DTU15MSS_1min.nc
         options: null
         source:
             transfer: ftp
@@ -151,7 +151,7 @@ mss:
             type: static
             link: /pub/DTU21/1_MIN/DTU21MSS_1min.mss.nc
     dtu25:
-        pyclass: DTU1MinGrid
+        pyclass: DTU2kmGrid
         long_name: DTU25 mean sea surface (2km grid)
         local_repository: dtu25
         filename: DTU25MSS_2km.nc
@@ -162,7 +162,6 @@ mss:
             pwdfile: null
             type: static
             link: /pub/DTU21/1_MIN/DTU21MSS_1min.mss.nc
-
 # Mean dynamic topography class
 mdt:
     dtu17:
@@ -276,31 +275,54 @@ snow:
                     dy: 12500
             subfolders: null
 
+
     uni_bremen_amsr_south:
         pyclass: UniBremenAMSR
         long_name: Snow depth on Antarctic sea ice from satellite radiometers (AMSR-E/2)
-        filenaming: "SnowDepth_amsr2_20200621v1.1.nc"
+        filenaming: "regridded_SnowDepth_amsr2_{year}{month}{day}v1.1.nc"
         local_repository: uni_bremen_amsr_south
         options:
             snow_depth_nc_variable: snow_depth
             snow_depth_uncertainty_nc_variable: snow_depth_unc
             south:
                 projection:
-                    proj: stere
-                    ellps: WGS84
+                    proj: laea
                     lon_0: 0
                     lat_0: -90
-                    lat_ts: -70
-                    a: 6378273
-                    b: 6356889.44891
+                    datum: WGS84
+                    ellps: WGS84
                 dimension:
-                    n_cols: 316
-                    n_lines: 332
+                    n_cols: 790
+                    n_lines: 830
                     dx: 25000
                     dy: 25000
-                subfolders: null    
+        subfolders: 
+            - year
+            - month
 
-
+    laku:
+        pyclass: LaKu
+        long_name: Snow depth on Antarctic sea ice from satellite Laser Ku 
+        filenaming: "SOSIMBA_LAKU_SD_{year}{month}{day}.nc"
+        local_repository: laku
+        options:
+            snow_depth_nc_variable: snow_depth
+            snow_depth_uncertainty_nc_variable: snow_depth
+            south:
+                projection:
+                    proj: laea
+                    lon_0: 0
+                    lat_0: -90
+                    datum: WGS84
+                    ellps: WGS84
+                dimension:
+                    n_cols: 790
+                    n_lines: 830
+                    dx: 25000
+                    dy: 25000
+        subfolders: 
+            - year
+            - month
 # List of sea ice concentration products
 sic:
 

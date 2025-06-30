@@ -4,13 +4,14 @@ metadata:
     record_type: cdr
     platform: sentinel3b
     version: v4p0-preview1-ss
-    file_version_tag: "v4p0-preview.1-ss"
+    file_version_tag: v4p0-preview.1-ss
     hemisphere: south
-    
+
 procsteps:
     module: filter
     pyclass: MarginalIceZoneFilterFlag
     options:
+        filter_type: '2' #can be '23'
         ice_edge_proximity:
             sea_ice_concentration_max: 75.
             low_ice_concentration_distance_max: 200000.
