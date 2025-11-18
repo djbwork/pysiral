@@ -246,3 +246,4 @@ mypy-coverage.txt/
 mypy-coverage/
 .vscode/
 _build/
+docs/_build/
