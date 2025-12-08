@@ -6,7 +6,8 @@ Created on Mon Apr 25 17:15:39 2016
 """
 
 import numpy as np
-
+import pandas as pd
+import datetime
 from pysiral.l2proc.procsteps import Level2ProcessorStep
 
 
@@ -83,6 +84,96 @@ class AlexandrovSeaIceDensity(Level2ProcessorStep):
     def error_bit(self):
         return self.error_flag_bit_dict["sit"]
 
+class SeasonalSouthernSeaIceDensity(Level2ProcessorStep):
+    """
+    A Level-2 processor step that adds sea ice density and sea ice density uncertainty 
+    considering seasonal values to the L2 data object based on the time of the year
+    """
+
+    def __init__(self, *args, **kwargs):
+        super(SeasonalSouthernSeaIceDensity, self).__init__(*args, **kwargs)
+
+    def execute_procstep(self, l1b, l2):
+        """
+        Mandatory method for the Level2ProcessorStep class. Will add sea ice density
+        and uncertainty computed from the date
+        and add output parameters to the L2 data object
+        :param l1b:
+        :param l2:
+        :return: Error Status
+        """
+
+        # Get the mandatory error status output
+        error_status = self.get_clean_error_status(l2.n_records)
+
+        # Boundary conditions (all fyi, all myi)
+        rho_i_winter = self.cfg.options.winter_density
+        rho_i_spring = self.cfg.options.spring_density
+        rho_i_summer = self.cfg.options.summer_density
+        rho_i_autumn = self.cfg.options.autumn_density
+
+        # Scales with MYI fraction
+        data_seasons = {
+            "date": ["15-07", "15-10", "15-01", "15-04", "15-07"],
+            "density": [rho_i_winter, rho_i_spring, rho_i_summer, rho_i_autumn, rho_i_winter],
+            }
+        l2_dates = pd.to_datetime(l2.time)
+        start_year = l2_dates.min().year - 1
+        end_year = l2_dates.max().year + 1
+        season_dates = []
+        for year in range(start_year, end_year + 1):
+            for season in data_seasons["date"]:
+                season_date = pd.to_datetime(f"{year}-{season}", format="%Y-%d-%m")
+                season_dates.append(season_date)
+
+        season_series = pd.Series(data_seasons["density"] * (end_year - start_year + 1), index=season_dates)
+        season_series = season_series[~season_series.index.duplicated(keep='first')].sort_index()
+        rho_i = np.interp(l2_dates, season_series.index, season_series.values)
+
+        # Test with : desired_index = pd.date_range('2015-01-10', periods=10, freq='1D')
+        
+
+        # Compute uncertainty of sea ice density
+        # Note: it has been decided to use a simplified computation of
+        # sea ice density uncertainty, since a simple Gaussian error
+        # propagation does not cut it, as the the two (fyi & myi) reference
+        # uncertainties are not independent (linked via scaling factor).
+        # One could add the covariance matrix, but this is hardly justified
+        # given the already very basic assumptions for fyi and myi density
+        # uncertainty.
+        # Here, the uncertainty is based on the fyi and myi density
+        # uncertainties scaled with the myi fraction. To reflect the
+        # myi_fraction uncertainty, the sea ice density uncertainty is
+        # slightly increased in regions of higher myi_fraction uncertainty
+        if "uncertainty" in self.cfg.options:
+            rho_i_unc = self.cfg.options.uncertainty
+            #rho_i_unc = unc.fyi_density
+            #rho_i_unc += myi_fraction * (unc.myi_density - unc.fyi_density)
+            #rho_i_unc += (unc.fyi_density - unc.myi_density) * myi_fraction.uncertainty
+
+        # Use fixed value for uncertainty (or 0 if unspecified)
+        else:
+            unc = 0.0
+            if "uncertainty_fixed_value" in self.cfg.options:
+                unc = self.cfg.options.uncertainty_fixed_value
+            rho_i_unc = np.full(rho_i.shape, unc, dtype=np.float32)
+
+        # Add data to the Level-2 data object
+        l2.set_auxiliary_parameter("idens", "sea_ice_density", rho_i, rho_i_unc)
+
+        # Done
+        return error_status
+    @property
+    def l2_input_vars(self):
+        return ["sitype"]
+
+    @property
+    def l2_output_vars(self):
+        return ["idens"]
+
+    @property
+    def error_bit(self):
+        return self.error_flag_bit_dict["sit"]
 
 class SeaIceFreeboard2SIT(Level2ProcessorStep):
     """

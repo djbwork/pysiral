@@ -245,4 +245,4 @@ pysiral_classes.txt
 mypy-coverage.txt/
 mypy-coverage/
 .vscode/
-_build/
+

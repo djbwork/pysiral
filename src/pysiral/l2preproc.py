@@ -10,16 +10,18 @@ from collections import OrderedDict
 from pathlib import Path
 
 from loguru import logger
-
+import numpy as np
+import yaml
 from pysiral import psrlcfg
 from pysiral.core.legacy_classes import DefaultLoggingClass, ErrorStatus
 from pysiral.core.output import Level2Output, OutputHandlerBase
 from pysiral.l2data import L2iNCFileImport, Level2Data, Level2PContainer
-
+from pysiral.filter import MarginalIceZoneFilterFlag
+from geopy.distance import great_circle
 
 class Level2PreProcessor(DefaultLoggingClass):
 
-    def __init__(self, product_def):
+    def __init__(self, product_def, proc_options):
         super(Level2PreProcessor, self).__init__(self.__class__.__name__)
         self.error = ErrorStatus()
 
@@ -29,6 +31,8 @@ class Level2PreProcessor(DefaultLoggingClass):
             self.error.add_error("invalid-l2preproc-def", msg)
             self.error.raise_on_error()
         self._job = product_def
+        self._job._auxproc = proc_options
+
 
     def process_l2i_files(self, l2i_files, period):
         """ Reads all l2i files and merges the valid data into a l2p
@@ -39,6 +43,14 @@ class Level2PreProcessor(DefaultLoggingClass):
 
         # Add all l2i objects to the l2p container.
         # NOTE: Only memory is the limit
+        filter_type = self._job._auxproc.procsteps.options['filter_type'] 
+        if filter_type == '23':
+            logger.info("The chosen filter for the MIZ is the adapted one from FB derivatives")
+        elif filter_type == '2':
+            logger.info("The chosen filter for the MIZ is the original one from PYSIRAL")
+        else:
+            logger.error("The chosen filter for the MIZ doesn't exist")
+
         for l2i_file in l2i_files:
             try:
                 l2i = L2iNCFileImport(l2i_file)
@@ -47,8 +59,56 @@ class Level2PreProcessor(DefaultLoggingClass):
                 msg %= (ex, Path(l2i_file).name)
                 logger.error(msg)
                 continue
+
+            if l2i.n_records<2:
+                spacing = np.nan
+            
+            spacing = great_circle(
+                     (l2i.latitude[1], l2i.longitude[1]),
+                     (l2i.latitude[0], l2i.longitude[0])).meters
+            if np.isclose(spacing, 0.0):
+                spacing = great_circle(
+                         (l2i.latitude[-2], l2i.longitude[-2]),
+                         (l2i.latitude[-1], l2i.longitude[-1])).meters
+                
+            args = [l2i.leading_edge_width,
+                l2i.leading_edge_width_rolling_mean,
+                l2i.pulse_peakiness_rolling_sdev,
+                l2i.sea_ice_freeboard,
+                l2i.sea_ice_concentration,
+                l2i.distance_to_ocean,
+                l2i.distance_to_low_ice_concentration,
+                spacing]
+            
+            if  not np.isnan(l2i.sea_ice_freeboard).all() == True:
+                if filter_type == '23':
+                    miz = MarginalIceZoneFilterFlag(self._job._auxproc.procsteps)
+                    filter_flag, spurious_flag, _ = miz.get_miz_filter_flag(*args)
+                    sum_flag_miz = l2i.flag_miz + spurious_flag
+                    idx = np.where(sum_flag_miz==5)[0]
+                elif filter_type == '2':
+                    idx = np.where(l2i.flag_miz==2)[0]
+                
+                l2i.sea_ice_thickness[idx] = np.nan
+            
             l2p.append_l2i(l2i)
 
+
+            # @staticmethod
+            # def footprint_spacing(l2i):
+            #     if l2i.n_records < 2:
+            #         return np.nan
+
+            #     spacing = great_circle(
+            #         (l2i.latitude[1], l2i.longitude[1]),
+            #         (l2i.latitude[0], l2i.longitude[0])).meters
+
+            #     if np.isclose(spacing, 0.0):
+            #         spacing = great_circle(
+            #             (l2i.latitude[-2], l2i.longitude[-2]),
+            #             (l2i.latitude[-1], l2i.longitude[-1])).meters
+
+            #     return spacing
         # Merge the l2i object to a single L2Data object
         l2 = l2p.get_merged_l2()
         if l2 is None:
@@ -62,6 +122,24 @@ class Level2PreProcessor(DefaultLoggingClass):
     @property
     def job(self):
         return self._job
+
+
+class Level2Procauxdef:
+    
+    def __init__(self, data):
+        for key, value in data.items():
+            if key == "options" and isinstance(value, dict):
+                setattr(self, key, value)
+            elif isinstance(value, dict):
+                setattr(self, key, Level2Procauxdef(value))  # Récursif pour les autres sous-dicos
+            else:
+                setattr(self, key, value)
+    @classmethod
+    def from_yaml(cls, filename):
+        """Load YAML file and create a Config object."""
+        with open(filename, "r") as f:
+            data = yaml.safe_load(f)
+        return cls(data)  # Retourne une instance de Config
 
 
 class Level2PreProcProductDefinition(DefaultLoggingClass):
@@ -198,3 +276,4 @@ class Level2POutputHandler(OutputHandlerBase):
     def default_output_def_filename(self):
         local_settings_path = psrlcfg.pysiral_local_path
         return Path(local_settings_path) / Path(*self.default_file_location)
+
