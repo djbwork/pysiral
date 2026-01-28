@@ -1,13 +1,11 @@
 metadata:
-    label: "C3S Sentinel-3 northern hemisphere sea-ice thickness interim climate data record v4.0 (AMSR2)"
-    product_line: c3s
-    record_type: icdr
-    platform: sentinel3a
+    label: "ESA CCI+ Sentinel-3 northern hemisphere sea-ice thickness climate data record v4.0"
+    product_line: cci
+    record_type: cdr
+    platform: sentinel3b
     version: v4p0
     file_version_tag: v4p0
     hemisphere: north
-
-
 
 # --- Ingest auxiliary data ---
 #
@@ -32,15 +30,15 @@ auxdata:
         name: nsidc_2021
         options: null
 
+    # Load the
     - mss:
         name: dtu21
         options:
             latitude_range: [45.0, 90.0]
 
     - sic:
-        name: c3s
+        name: osi-438
         options:
-            version: v3p0
             exception_on_error: False
 
     - sitype:
@@ -336,7 +334,7 @@ procsteps:
         pyclass: L2SeaIceDraft
         options: {}
 
-    # Add a filter flag to detect anomalous freeboards in the marginal ice zone
+        # Add a filter flag to detect anomalous freeboards in the marginal ice zone
     -   module: filter
         pyclass: MarginalIceZoneFilterFlag
         options:
