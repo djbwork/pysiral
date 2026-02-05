@@ -1,6 +1,6 @@
 metadata:
-    label: "ESA CCI+ Sentinel-3 northern hemisphere sea-ice thickness climate data record v4.0"
-    product_line: cci
+    label: "C3S Sentinel-3 northern hemisphere sea-ice thickness climate data record v4.0"
+    product_line: c3s
     record_type: cdr
     platform: sentinel3b
     version: v4p0
