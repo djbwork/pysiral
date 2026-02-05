@@ -952,7 +952,7 @@ class Level3OutputHandler(OutputHandlerBase):
             basedir = Path(self.pysiral_config.local_machine.product_repository) / base_directory_or_id
         # add product level subfolder
         # period_id = dict(month="monthly", isoweek="weekly")
-        basedir = basedir / self.product_level_subfolder / self._period
+        basedir = basedir / self._period
         # optional (subfolder with current time)
         if self.overwrite_protection:
             basedir = basedir / self.now_directory
