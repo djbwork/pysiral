@@ -972,7 +972,7 @@ class Level3OutputHandler(OutputHandlerBase):
 
     @property
     def data_record_type(self):
-        return self._data_record_type
+        return str(self._data_record_type)
 
     @property
     def time_dim_is_unlimited(self):
