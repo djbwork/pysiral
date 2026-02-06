@@ -164,18 +164,19 @@ class Level3Processor(DefaultLoggingClass):
         l2i.mask_variables(indices, targets)
 
     @staticmethod
-    def apply_miz_filter(l2i, miz_filter):
+    def apply_miz_filter(l2i, miz_filter) -> None:
         """
         Flag values based on the miz filter value
+
         :param l2i:
         :param miz_filter:
         :return:
         """
-
-        flag_miz = getattr(l2i, "flag_miz", None)
-        if flag_miz is None:
+        # The MIZ flag is returned as a masked array, so we need to fill the masked values with 0 (open water)
+        # before applying the filter. Otherwise, valid data will be incorrectly removed.
+        if (flag_miz_masked := getattr(l2i, "flag_miz", None)) is None:
             return
-
+        flag_miz = flag_miz_masked.filled(0)
         idx = np.where(flag_miz >= miz_filter["mask_min_value"])[0]
         l2i.mask_variables(idx, miz_filter["mask_targets"])
 
