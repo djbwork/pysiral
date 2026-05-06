@@ -38,13 +38,13 @@ auxdata:
               stage_of_development_highest_concentration: "ice_chart_stage_of_development_highest_concentration"
               fraction_thin_ice: "ice_chart_thin_ice_fraction"
               fraction_first_year_ice: "ice_chart_first_year_ice_fraction"
-              fraction_multi_year_ice: "sea_ice_type"  # Emulates output of OSI-SAF like sea ice type
+              fraction_multi_year_ice: &sitype_var_name "ice_chart_multi_year_ice_fraction"
               number_of_seaice_classes: "ice_chart_num_classes"
-
 
     - snow:
         name: cryotempo_nh_clim
         options:
+            myi_fraction_var_name: *sitype_var_name
             daily_scaling: True
             fyi_correction_factor: 0.5
             exception_on_error: False
@@ -266,6 +266,32 @@ procsteps:
             target_variables: [frb]
             valid_minimum_point_value: -0.25
             valid_maximum_point_value: 2.25
+
+    -   module: sit
+        pyclass: AlexandrovSeaIceDensity
+        options:
+            myi_fraction_var_name: *sitype_var_name
+            fyi_density: 916.7
+            myi_density: 882.0
+            uncertainty:
+                fyi_density: 35.7
+                myi_density: 23.0
+
+    # Algorithm for getting sea ice thickness from other l2 parameters
+    -   module: sit
+        pyclass: SeaIceFreeboard2SIT
+        options:
+            water_density: 1024.0
+
+    # Filters after thickness computation
+    -   module: filter
+        pyclass: L2ParameterValidRange
+        options:
+            source_variable: sit
+            target_variables: [sit]
+            valid_minimum_point_value: -0.5
+            valid_maximum_point_value: 10.5
+
 
     # Add a filter flag to detect anomalous freeboards in the marginal ice zone
     -   module: filter
