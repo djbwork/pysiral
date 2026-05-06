@@ -31,7 +31,7 @@ global_attributes:
   - geospatial_vertical_max: 0.0
   - time_coverage_start: "{time_coverage_start}"
   - time_coverage_end: "{time_coverage_end}"
-  - product_baseline: "B"
+  - product_baseline: "A"
   - product_version: "001"
   - Conventions: "CF-1.8"
   - cycle_number: "{cycle}"
@@ -42,7 +42,7 @@ global_attributes:
   - cdm_data_type: "Trajectory"
   - history: "{utcnow:%a %b %d %H:%M:%S %Y:} Product generated with pysiral version {pysiral_version}\n"
   - sw_version: "{pysiral_version}"
-  - doi: "10.5270/CR2-7ece675"
+  - doi: "None"
 
 #  - institution: "TBD"
 #  - source: "Altimetry: CryoSat-2 Level 1b baseline D (ipf1-d), Snow depth: Monthly climatology based on regional merging of Warren Climatology
@@ -59,7 +59,7 @@ global_attributes:
 #  - keywords: "Earth Science > Cryosphere > Sea Ice > Ice Depth/Thickness, Earth Science > Oceans > Sea Ice > Ice Depth/Thickness,
 #    Earth Science > Climate Indicators > Cryospheric Indicators > Ice Depth/Thickness,
 #    Geographic Region > Northern Hemisphere, Vertical Location > Sea Surface"
-#  - id: "esa-cryotempo-l2-seaice-{source_mission_id}-{source_timeliness:lowercase}-{hemisphere_code}-{time_coverage_start:%Y%m%d}-fv2p3"
+#  - id: "cryotempo-cryotempo-l2-seaice-{source_mission_id}-{source_timeliness:lowercase}-{hemisphere_code}-{time_coverage_start:%Y%m%d}-fv2p3"
 #  - naming_authority: "TBD"
 #  - keywords_vocabulary: "GCMD Science Keywords"
 #  - doi: "None"
@@ -167,19 +167,3 @@ variables:
     units: m
     coordinates: longitude latitude
     comment: "Filtered with a 450km lowess filter"
-
-  inverse_barometric:
-    long_name: "inverse barometric range correction"
-    units: "m"
-    coordinates: longitude latitude
-    comment: "Provided for the user to remove if necessary for their use case."
-
-  region_code:
-      long_name: "region id"
-      unit: 1
-      valid_min: 0
-      valid_max: 18
-      flag_meanings: "Undefined_Region Central_Arctic Beaufort_Sea Chukchi_Sea East_Siberian_Sea Laptev_Sea Kara_Sea Barents_Sea East_Greenland_Sea Baffin_Bay_&_Labrador_Sea Gulf_of_St._Lawrence Hudson_Bay Canadian_Archipelago Bering_Sea Sea_of_Okhotsk Sea_of_Japan Bohai_Sea Baltic_Sea Gulf_of_Alaska"
-      flag_values: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18
-      comment: "Adapted from 'A new regional mask for Arctic sea ice trends and climatologies (J. Scott Stewart and Walter N. Meier, NSIDC)'"
-      coordinates: time

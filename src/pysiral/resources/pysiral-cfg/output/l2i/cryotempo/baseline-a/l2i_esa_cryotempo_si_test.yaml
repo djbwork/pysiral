@@ -62,7 +62,7 @@ global_attributes:
 #  - keywords: "Earth Science > Cryosphere > Sea Ice > Ice Depth/Thickness, Earth Science > Oceans > Sea Ice > Ice Depth/Thickness,
 #    Earth Science > Climate Indicators > Cryospheric Indicators > Ice Depth/Thickness,
 #    Geographic Region > Northern Hemisphere, Vertical Location > Sea Surface"
-#  - id: "esa-cryotempo-l2-seaice-{source_mission_id}-{source_timeliness:lowercase}-{hemisphere_code}-{time_coverage_start:%Y%m%d}-fv2p3"
+#  - id: "cryotempo-cryotempo-l2-seaice-{source_mission_id}-{source_timeliness:lowercase}-{hemisphere_code}-{time_coverage_start:%Y%m%d}-fv2p3"
 #  - naming_authority: "TBD"
 #  - keywords_vocabulary: "GCMD Science Keywords"
 #  - doi: "None"
