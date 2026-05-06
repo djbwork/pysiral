@@ -292,7 +292,6 @@ procsteps:
             valid_minimum_point_value: -0.5
             valid_maximum_point_value: 10.5
 
-
     # Add a filter flag to detect anomalous freeboards in the marginal ice zone
     -   module: filter
         pyclass: SAMOSAMarginalIceZoneFilterFlag
@@ -307,6 +306,19 @@ procsteps:
             source_variable: frb
             target_variable_name: sea_ice_freeboard_filtered
             target_variable_id: frbflt
+            smoothing_method: lowess
+            smoother_args:
+                filter_size_n_points: 83
+                filter_props:
+                     it: 1
+
+    # Create a filtered/smoothed version of sea-ice freeboard
+    -   module: filter
+        pyclass: ParameterSmoother
+        options:
+            source_variable: sit
+            target_variable_name: sea_ice_thickness_filtered
+            target_variable_id: sitflt
             smoothing_method: lowess
             smoother_args:
                 filter_size_n_points: 83
