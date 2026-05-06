@@ -884,9 +884,16 @@ class USNICGrid(AuxdataBaseClass):
 
     def set_l2_parameters(self, l2: Level2Data, ice_chart_l2_track: xr.Dataset) -> None:
         """
-        Set the parameter sea ice concentrations, stage of developement and floe
+        Set the parameter sea ice concentrations, stage of development and floe
         for the three categories A, B, C as multidim parameters and the total
-        concentration as single parameter
+        concentration as single parameter.
+
+        Note: The output is customizable by providing a dictionary of variables names
+
+        :param l2: The Level-2 data object
+        :param ice_chart_l2_track: Gridded ice chart variables projected to the ground track
+
+        :return: None (Changes Level-2 data object in place)
         """
 
         var_id_dict = {
@@ -902,10 +909,10 @@ class USNICGrid(AuxdataBaseClass):
             "form_of_ice_partial": "icfloep",
         }
 
-        var_name_dict = {
+        var_name_dict_default = {
             "sea_ice_concentration_total": "ice_chart_sea_ice_concentration_total",
-            "stage_of_development_highest_concentration": "icsodhc",
-            "stage_of_development_partial_is_overall_class": "icsodioc",
+            "stage_of_development_highest_concentration": "ice_chart_stage_of_development_highest_concentration",
+            "stage_of_development_partial_is_overall_class": "ice_chart_stage_of_development_partial_is_overall_class",
             "fraction_thin_ice": "ice_chart_thin_ice_fraction",
             "fraction_first_year_ice": "ice_chart_first_year_ice_fraction",
             "fraction_multi_year_ice": "ice_chart_multi_year_ice_fraction",
@@ -915,13 +922,19 @@ class USNICGrid(AuxdataBaseClass):
             "form_of_ice_partial": "ice_chart_floe_parameter_classes",
         }
 
-        for var_name in ice_chart_l2_track.attrs["time_dim_parameter"]:
+        # Set the variables with only time dimension
+        var_name_dict = self.cfg.get("var_name_dict", var_name_dict_default)
+        time_dim_vars = [v for v in ice_chart_l2_track.attrs["time_dim_parameter"] if v in var_name_dict]
+        for var_name in time_dim_vars:
             self.register_auxvar(var_id_dict[var_name], var_name_dict[var_name], ice_chart_l2_track[var_name].values)
 
+        # Set the variables with dimension ice chart class and time
+        class_time_dim_vars = [v for v in ice_chart_l2_track.attrs["class_time_dim_parameter"] if v in var_name_dict]
         dims = {"new_dims": (("ice_chart_class", 3),),
                 "dimensions": ("time", "ice_chart_class"),
                 "add_dims": (("ice_chart_class", np.arange(3)),)}
-        for var_name in ice_chart_l2_track.attrs["class_time_dim_parameter"]:
+
+        for var_name in class_time_dim_vars:
             l2.set_multidim_auxiliary_parameter(
                 var_id_dict[var_name], var_name_dict[var_name],
                 ice_chart_l2_track[var_name].values, dims, update=True
