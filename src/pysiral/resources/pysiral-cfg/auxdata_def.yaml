@@ -208,6 +208,31 @@ snow:
                     dy: 6250
             subfolders: null
 
+    cryotempo_nh_clim:
+        pyclass: Warren99SMLGClim
+        long_name: Merged monthly snow depth and density climatology from Warren99 and filtered SnowModel-LG snow depth.
+        filename: "snow-climatology-w99_smlg-ease2_nh_12p5km-p1m-v1p0.nc"
+        local_repository: clim_w99amsr2
+        options:
+            variable_map:
+                depth: merged_snow_depth
+                depth_uncertainty: merged_snow_depth_uncertainty
+                density: w99_snow_density_filtered
+                density_uncertainty: w99_snow_density_filtered_uncertainty
+            north:
+                projection:
+                    proj: laea
+                    lon_0: 0.0
+                    lat_0: 90.0
+                    a: 6378137.0
+                    b: 6356752.314245179
+                dimension:
+                    n_cols: 864
+                    n_lines: 864
+                    dx: 12500
+                    dy: 12500
+            subfolders: null
+
     snow_density_seasonal_mallett:
         pyclass: SeasonalArcticSnowDensityMallett2020
         long_name: Seasonal changing Arctic Snow density
@@ -486,6 +511,32 @@ sitype:
             v3p0:
                 cdr_time_coverage_end: 2021-01-01T00:00:00
 
+        subfolders:
+            - year
+            - month
+
+    # See https://gitlab.awi.de/siteo/cryotempo/icgrid for details on this product.
+    # This is a gridded product created by AWI based on USNIC ice charts shapefiles.
+    usnic_icgrid:
+        pyclass: USNICGrid
+        long_name: Gridded ice charts from US National Ice Center (USNIC).
+        filenaming: "usnic-icechart-nh_ease2_12p5km-{date_coverage_start}_{date_coverage_end}-v1p0.nc"
+        local_repository: usnic_icgrid
+        options:
+            north:
+                projection:
+                    proj: stere
+                    lon_0: -45
+                    lat_0: 90
+                    lat_ts: 70
+                    a: 6378273
+                    b: 6356889.44891
+                dimension:
+                    n_cols: 304
+                    n_lines: 448
+                    dx: 25000
+                    dy: 25000
+            south: null
         subfolders:
             - year
             - month
