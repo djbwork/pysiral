@@ -1,5 +1,8 @@
+# Level-2 processor definition file for the ESA Cryo-TEMPO CryoSat-2 reprocessed Arctic winter sea ice product
+# (Algorithm Baseline-E)
+
 metadata:
-    label: "ESA CryoTEMPO CryoSat-2 reprocessed sea ice product"
+    label: "ESA Cryo-TEMPO CryoSat-2 reprocessed Arctic winter sea ice product"
     product_line: cryotempo
     record_type: si-rep
     platform: cryosat2
@@ -7,31 +10,13 @@ metadata:
     file_version_tag: "E001"
     hemisphere: north
 
-
 # --- Ingest auxiliary data ---
-#
-# A list auxilliary datasets to be ingested before the execution of the processing steps.
-#
-# Usage:
-#
-#  - <auxdata_category>:       <- links to corresponding category in auxdata_def.yaml
-#       name: <auxdata_name>   <- links auxdata_category.auxdata_name auxdata_def.yaml
-#       options: {dict}        <- Options that may overwrite the ones already provided in auxdata_def.yaml
-#
-# Notes:
-#
-#   - The order of the auxdata definition is important as there might be dependancies of auxiliary datasets
-#
 auxdata:
 
-    # Add region codes
-    # NOTE: It is advisable to do this in the beginning, since the following auxiliary data types can
-    #       be modified depending on region code
     - region:
         name: nsidc_2021
         options: null
 
-    # Load the
     - mss:
         name: dtu21
         options:
@@ -41,41 +26,32 @@ auxdata:
         name: c3s
         options:
             version: v3p0
-            exception_on_error: True
+            exception_on_error: False
 
-    - sitype:
-        name: c3s
+    - icechart:
+        name: usnic_icgrid
         options:
-            version: v3p0
-            fill_valid_sic_gaps: True
-            exception_on_error: True
+            interpolate_gaps: True
+            exception_on_error: False
+            # This overrides the default output variables
+            var_name_dict:
+              stage_of_development_highest_concentration: "ice_chart_stage_of_development_highest_concentration"
+              fraction_thin_ice: "ice_chart_thin_ice_fraction"
+              fraction_first_year_ice: "ice_chart_first_year_ice_fraction"
+              fraction_multi_year_ice: "sea_ice_type"  # Emulates output of OSI-SAF like sea ice type
+              number_of_seaice_classes: "ice_chart_num_classes"
+
 
     - snow:
-        name: clim_w99amsr2
+        name: cryotempo_nh_clim
         options:
             daily_scaling: True
             fyi_correction_factor: 0.5
             exception_on_error: False
 
-    # Note: The snow density in this class will overwrite the snow density
-    #       from the W99/AMSR2 climatology (this is intended)
-    - snow:
-            name: snow_density_seasonal_mallett
-            options:
-                snow_density_uncertainty: 50.
-
-
 # --- Level-2 processor steps ---
-#
-# A list auxilliary datasets to be ingested before the execution of the processing steps.
-
 procsteps:
 
-    # Transfer variables from the l1b data object to the l2 data object
-    # Notation is:
-    #
-    # <l1b_datagroup>:
-    #        <l1b_variable_name>: [l2_auxdata_id, l2_auxdata_name]
     -   module: l2proc.procsteps
         pyclass: L1BL2TransferVariables
         options:
@@ -123,65 +99,23 @@ procsteps:
                 - sigma0
 
     # --- Surface type classification algorithm ---
-    #
-    # Surface type classification algorithm can be fully constructed from the
-    # config file. Only the land flag will always overwrite all classification after
-    # the surface type classification.
-    #
-    # The conventions for the options are:
-    #
-    # <surface_type_code>:  -> [ocean, lead, sea_ice]
-    #   - radar_mode: <radar_mode>
-    #     exclude: <surface type>
-    #     conditions:
-    #         - logical expression of the type
-    #              "{<parameter_name>} <operator> <value>"
-    #           including the parameter name in {}, e.g.
-    #              "{sea_ice_concentration} < 15.0"
-    #           Fixed values as in example above are possible, but also monthly values, e.g.:
-    #              "{sigma0} >= [1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0, 11.0, 12.0]"
-    #           This example is evaluated as "{sigma0} >= 1.0" for January and as
-    #           "{sigma0} >= 12.0" for December.
-    #
-    #         - ...
-    #   - ...
-
-    # Surface type classification algorithm
-    # SH: This is the surface type classification algorithm for
-    #     the new ESA CCI climate data record. There are now significantly
-    #     more sea ice waveform
     -   module: surface
         pyclass: ClassifierThresholdSurfaceType
         options:
-
-            # This option defines the surface type order. It is important that
-            # leads are classified before sea ice to fulfill the condition
-            # that sea-ice waveforms are not lead waveforms.
             surface_types: [ocean, lead, sea_ice]
-
-            # Ocean classification is based on a low pulse peakiness
-            # and the sea-ice concentration based ice mask
             ocean:
-
                 - radar_mode: lrm
                   conditions:
                       - "{sea_ice_concentration} < 15.0"
-
                 - radar_mode: sar
                   conditions:
                       - "{sea_ice_concentration} < 15.0"
                       - "{pulse_peakiness_rolling_sdev} < 1.0"
-
                 - radar_mode: sin
                   conditions:
                       - "{sea_ice_concentration} < 15.0"
                       - "{pulse_peakiness_rolling_sdev} < 4.0"
-
-            # Lead waveforms are classified based on sigma0, leading edge width
-            # and pulse peakiness within the sea-ice mask.
-            # NOTE: No LRM data over sea ice
             lead:
-
                 - radar_mode: sar
                   conditions:
                       - "{sea_ice_concentration} >= 15.0"
@@ -195,19 +129,12 @@ procsteps:
                       - "{pulse_peakiness} >= 260.0"
                       - "{sigma0} >= 24.0"
                       - "{leading_edge_width} <= 1.05"
-
-            # The sea ice classification uses as many waveforms as possible
-            # and reduces the classification to all waveforms within the
-            # sea ice mask which are not classified as leads and have a
-            # valid leading edge.
             sea_ice:
-
                 - radar_mode: sar
                   exclude: lead
                   conditions:
                       - "{sea_ice_concentration} >= 15.0"
                       - "{leading_edge_quality} <= 1.02"
-
                 - radar_mode: sin
                   exclude: lead
                   conditions:
@@ -218,23 +145,16 @@ procsteps:
     -   module: retracker
         pyclass: Level2RetrackerContainer
         options:
-
             lead:
               pyclass: SAMOSAPlusRetracker
               options:
                 surface_class: polar_ocean
-                # Set to False for MSSL processing so we can control CPU usage
                 use_multiprocessing: False
                 num_processes: "pysiral-cfg"
                 fit_method: "samosap_specular"
                 samosap_fit_kwargs:
-                    # Two values for SAMOSA+ step1 and step2
-                    # NOTE: step1 is ignored for leads (`fit_method: samosap_specular`)
                     amplitude_is_free_param: &samosa_fit_amp_lead [False, False]
-                    # SAMOSA+ step 2 requires fixed swh value
                     step2_fixed_swh_value: 0.0
-                    # Sub-waveform masking algorithm does not perform well for
-                    # specular waveforms
                     trailing_edge_sub_waveform_filter: False
                 predictor_kwargs:
                   amplitude_is_free_parameter: *samosa_fit_amp_lead
@@ -260,11 +180,8 @@ procsteps:
                 num_processes: "pysiral-cfg"
                 fit_method: "samosap_standard"
                 samosap_fit_kwargs:
-                    # Only single fit (with SAMOSA+ step 2)
                     amplitude_is_free_param: &samosa_fit_amp_sea_ice [True, True]
-                    # SAMOSA+ step 1 requires fixed nu value
                     step1_fixed_nu_value: 0.0
-                    # SAMOSA+ step 2 requires fixed swh value
                     step2_fixed_swh_value: 0.0
                     trailing_edge_sub_waveform_filter: True
                 predictor_kwargs:
@@ -366,10 +283,6 @@ procsteps:
             target_variable_id: frbflt
             smoothing_method: lowess
             smoother_args:
-#                # The lowess filter size in statsmodels implementation uses
-#                # in fractions of data points to determine the filter size
-#                # The lowess filter therefore computes the data fraction
-#                # from the `filter_size_n_points` keyword
                 filter_size_n_points: 83
                 filter_props:
                      it: 1
@@ -380,7 +293,6 @@ procsteps:
         options:
             target_variables:
               - sea_level_anomaly
-
 
     # Create an instrument mode flag for CryoSat-2 data
     # (instrument mode = radar mode + 1)
