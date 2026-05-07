@@ -5,6 +5,7 @@ input_handler:
     
     module_name: pysiral.cryosat2.iotools
     class_name: BaselineDFileDiscovery
+
     options:
         local_machine_def_tag: &lmd_tag baseline_e  # -> l1b_repository.$platform.$input_tag in (local_machine_def.yaml)
         lookup_dir: null  # Leave emtpy: This will be automatically filled with information from local_machine_def
@@ -22,7 +23,7 @@ input_adapter:
     
     options:
         
-        name: "CryoSat-2 Level-1b data of the ESA PDS Instrument Processing Facility (algorithm baseline E)"
+        name: "CryoSat-2 Level-1b ICE Product (algorithm baseline E)"
         
         range_correction_targets:
             dry_troposphere: mod_dry_tropo_cor_01
@@ -68,10 +69,10 @@ output_handler:
    
     options:
         local_machine_def_tag: *lmd_tag
+        minimum_file_record_size: 10
         version:
-            minimum_file_record_size: 10
             source_file_tag: esa_pds_ipf1e_ct
-            version_file_tag: v1p4
+            version_file_tag: v1p5
 
 
 # Settings for the pre-processor
@@ -93,7 +94,23 @@ level1_preprocessor:
         # NOTE: if no options are required use an empty mapping {} instead of null!
         processing_items:
 
-
+            # Change the tide corrections to the FES2014 tide model (near real-time solution)
+            # (instead of the default FES2004 model)
+            # NOTE: This processor item is specific for Cryo-TEMPO production
+            - label: "Include FES2014 Tides (NRT)"
+              stage: post_source_file  # Will only work at this stage
+              module_name: pysiral.l1preproc.procitems.tides
+              class_name: CryoTEMPOExternalTides
+              options:
+                raise_on_missing_file: False   # `True` will stop the L1 Pre-Processor on a missing tide file
+                file_name_mapping:   # replacing parts of the source file path to get the external tide file path
+                    - ["L1B", "L1B/FES2014"]
+                    - ["nc", "fes2014b.nc"]
+                    - ["TEST", "'LTA_"]
+                tide_variable_name_mapping:  # <L1 variable name>: <tide file variable name>
+                    ocean_tide_elastic: ocean_tide_FES22
+                    ocean_loading_tide: load_tide_FES22
+                tide_file_nan_policy: "fill"  # Options: `fill` (with l1b), `interpolate`, `ignore`
 
             # Resample SIN waveforms to the same size as SAR waveforms
             # NOTE: This will only have an effect of SIN segments
