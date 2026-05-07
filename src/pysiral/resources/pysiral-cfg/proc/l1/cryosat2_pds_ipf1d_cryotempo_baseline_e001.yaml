@@ -5,7 +5,6 @@ input_handler:
     
     module_name: pysiral.cryosat2.iotools
     class_name: BaselineDFileDiscovery
-    
     options:
         local_machine_def_tag: &lmd_tag baseline_e  # -> l1b_repository.$platform.$input_tag in (local_machine_def.yaml)
         lookup_dir: null  # Leave emtpy: This will be automatically filled with information from local_machine_def

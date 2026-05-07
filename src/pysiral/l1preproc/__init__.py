@@ -33,6 +33,8 @@ SHOW_DEBUG_MAP = False
 L1P_HEMISPHERE_NAMING_DICT = {"nh": "north", "sh": "south", "global": "global"}
 
 
+# TODO: To be replaced with Abstract Base Class (ABC)
+# TODO: To be renamed to data loader (affects all sub-classes)
 class Level1PInputHandlerBase(DefaultLoggingClass):
     """
     Base class (mostly for type checking).
