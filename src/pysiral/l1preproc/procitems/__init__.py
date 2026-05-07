@@ -90,7 +90,7 @@ class L1PProcItem(object):
         if item in self.cfg:
             return self.cfg[item]
         else:
-            raise ValueError(f"attribute {item} not found in class or config dictionary")
+            raise AttributeError(f"attribute {item} not found in class or config dictionary")
 
 
 L1PPROCITEM_CLS_TYPE = TypeVar("L1PPROCITEM_CLS_TYPE", bound=L1PProcItem)

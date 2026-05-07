@@ -19,7 +19,7 @@ input_handler:
 input_adapter:
     
     module_name: pysiral.cryosat2.l1_adapter
-    class_name: ESACryoSat2PDSBaselineDPatchFES
+    class_name: ESACryoSat2ICEBaselineEL1b
     
     options:
         
@@ -92,6 +92,24 @@ level1_preprocessor:
         
         # NOTE: if no options are required use an empty mapping {} instead of null!
         processing_items:
+
+            # Change the tide corrections to the FES2022b tide model
+            # (instead of the default FES2014 model)
+            # NOTE: This processor item is specific for Cryo-TEMPO production
+            - label: "Include FES2022b Tides"
+              stage: post_source_file  # Will only work at this stage
+              module_name: pysiral.l1preproc.procitems.tides
+              class_name: CryoTEMPOExternalTides
+              options:
+                raise_on_missing_file: False   # `True` will stop the L1 Pre-Processor on a missing tide file
+                file_name_mapping:   # replacing parts of the source file path to get the FES2022b file path
+                    - ["L1B", "L1B/FES2022"]
+                    - [".nc", "-FES2022_v1.0.nc"]
+                    - ["TEST", "'LTA_"]
+                tide_variable_name_mapping:  # <L1 variable name>: <tide file variable name>
+                    ocean_tide_elastic: ocean_tide_FES22
+                    ocean_loading_tide: load_tide_FES22
+                tide_file_nan_policy: "fill"  # Options: `fill` (with l1b), `interpolate`, `ignore`
 
             # Resample SIN waveforms to the same size as SAR waveforms
             # NOTE: This will only have an effect of SIN segments

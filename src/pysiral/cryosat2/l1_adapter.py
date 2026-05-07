@@ -43,15 +43,16 @@ class ESACryoSat2ICEBaselineEL1b(Level1PInputHandlerBase):
     def get_l1(
             self,
             filepath: Path,
-            polar_ocean_check_cls: Optional[L1PreProcPolarOceanCheck] = None
+            polar_ocean_check: Optional[L1PreProcPolarOceanCheck] = None
     ) -> Optional[Level1bData]:
         """
         Main entry point to the CryoSat-2 ICE Level-1b Baseline-E Input Adapter.
 
         :param filepath: The full file path of the CryoSat-2 Level-1b netCDF file
-        :param polar_ocean_check_cls:
+        :param polar_ocean_check: The class determining if the segment contains data over
+           the polar marine regions
 
-        :return:
+        :return: The Level-1b data object or None when errors have occured or the polar ocean check has failed
         """
 
         timer = StopWatch()
@@ -71,7 +72,7 @@ class ESACryoSat2ICEBaselineEL1b(Level1PInputHandlerBase):
             return None
 
         # Parse the input file
-        if nc := self._read_input_netcdf(filepath) is None:
+        if (nc := self._read_input_netcdf(filepath)) is None:
             return None
 
         # CAVEAT: An issue has been identified with baseline-D L1b data when the orbit solution
@@ -91,15 +92,15 @@ class ESACryoSat2ICEBaselineEL1b(Level1PInputHandlerBase):
         #   exclude_predicted_orbits: True
         #
         exclude_predicted_orbits = self.cfg.get("exclude_predicted_orbits", False)
-        is_predicted_orbit = self.nc.vector_source.lower().strip() == "fos predicted"
+        is_predicted_orbit = nc.vector_source.lower().strip() == "fos predicted"
         if is_predicted_orbit and exclude_predicted_orbits:
             logger.warning("Predicted orbit solution detected -> skip file")
             return None
 
         # Get metadata
         self._set_input_file_metadata(nc, l1)
-        if polar_ocean_check_cls is not None:
-            has_polar_ocean_data = polar_ocean_check_cls.has_polar_ocean_segments(l1.info)
+        if polar_ocean_check is not None:
+            has_polar_ocean_data = polar_ocean_check.has_polar_ocean_segments(l1.info)
             if not has_polar_ocean_data:
                 timer.stop()
                 return None
@@ -1002,6 +1003,7 @@ class ESACryoSat2PDSBaselineDPatchFESArctide(ESACryoSat2PDSBaselineDPatchFES):
         p = re.compile('TEST')
         newpath = p.sub('LTA_', newpath)
         return newpath
+
 
 class ESACryoSat2PDSBaselineDPatchFESArctideDiscrim(ESACryoSat2PDSBaselineDPatchFESArctide):
     def __init__(self, cfg, raise_on_error=False):
