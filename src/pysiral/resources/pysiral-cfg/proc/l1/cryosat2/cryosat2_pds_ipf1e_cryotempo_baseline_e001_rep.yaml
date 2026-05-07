@@ -5,7 +5,6 @@ input_handler:
     
     module_name: pysiral.cryosat2.iotools
     class_name: BaselineDFileDiscovery
-    
     options:
         local_machine_def_tag: &lmd_tag baseline_e  # -> l1b_repository.$platform.$input_tag in (local_machine_def.yaml)
         lookup_dir: null  # Leave emtpy: This will be automatically filled with information from local_machine_def
@@ -19,11 +18,11 @@ input_handler:
 input_adapter:
     
     module_name: pysiral.cryosat2.l1_adapter
-    class_name: ESACryoSat2PDSBaselineDPatchFES
+    class_name: ESACryoSat2ICEBaselineEL1b
     
     options:
         
-        name: "CryoSat-2 Level-1b data of the ESA PDS Instrument Processing Facility (algorithm baseline D)"
+        name: "CryoSat-2 Level-1b data of the ESA PDS Instrument Processing Facility (algorithm baseline E)"
         
         range_correction_targets:
             dry_troposphere: mod_dry_tropo_cor_01
@@ -69,10 +68,11 @@ output_handler:
    
     options:
         local_machine_def_tag: *lmd_tag
-        minimum_file_record_size: 10
         version:
+            minimum_file_record_size: 10
             source_file_tag: esa_pds_ipf1e_ct
             version_file_tag: v1p4
+
 
 # Settings for the pre-processor
 level1_preprocessor:
@@ -92,6 +92,24 @@ level1_preprocessor:
         
         # NOTE: if no options are required use an empty mapping {} instead of null!
         processing_items:
+
+            # Change the tide corrections to the FES2022b tide model
+            # (instead of the default FES2014 model)
+            # NOTE: This processor item is specific for Cryo-TEMPO production
+            - label: "Include FES2022b Tides"
+              stage: post_source_file  # Will only work at this stage
+              module_name: pysiral.l1preproc.procitems.tides
+              class_name: CryoTEMPOFES2022bTide
+              options:
+                raise_on_missing_file: False   # `True` will stop the L1 Pre-Processor on a missing tide file
+                file_name_mapping:   # replacing parts of the source file path to get the FES2022b file path
+                    - ["L1B", "L1B/FES2014"]
+                    - ["nc", "-FES2022_v1.0.nc"]
+                    - ["TEST", "'LTA_"]
+                tide_variable_name_mapping:  # <L1 variable name>: <tide file variable name>
+                    ocean_tide_elastic: ocean_tide_20
+                    ocean_tide_long_period: ocean_tide_eq_20
+                    ocean_loading_tide: load_tide_20
 
             # Resample SIN waveforms to the same size as SAR waveforms
             # NOTE: This will only have an effect of SIN segments

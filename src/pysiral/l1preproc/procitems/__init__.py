@@ -96,6 +96,7 @@ class L1PProcItem(object):
 L1PPROCITEM_CLS_TYPE = TypeVar("L1PPROCITEM_CLS_TYPE", bound=L1PProcItem)
 
 
+# TODO: Replace schema with pydantic
 class L1PProcItemDef(object):
     """
     Class for validating and processing Level-1 Pre-Processor item definition

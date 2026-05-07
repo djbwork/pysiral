@@ -61,7 +61,7 @@ class ESACryoSat2ICEBaselineEL1b(Level1PInputHandlerBase):
         self.filepath = filepath
 
         # Create an empty Level-1 data object
-        l1 = Level1bData()
+        l1 = Level1bData(filepath=filepath)
 
         # Input Validation
         if not Path(filepath).is_file():
@@ -949,6 +949,7 @@ class ESACryoSat2PDSBaselineDPatchFES2022(ESACryoSat2PDSBaselineD):
         p = re.compile('TEST')
         newpath = p.sub('LTA_', newpath)
         return newpath
+
 
 class ESACryoSat2PDSBaselineDPatchFESArctide(ESACryoSat2PDSBaselineDPatchFES):
     def __init__(self, cfg, raise_on_error=False):
