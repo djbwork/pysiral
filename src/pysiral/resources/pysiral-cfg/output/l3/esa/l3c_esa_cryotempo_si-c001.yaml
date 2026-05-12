@@ -8,12 +8,12 @@ metadata:
 
 # Output Definition (for each period definition)
 filenaming:
-  month: "esa-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m}-A001.nc"
-  monthly: "esa-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m}-A001.nc"
-  isoweek: "esa-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-C001.nc"
-  day: "esa-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m%d}-A001.nc"
-  custom: "esa-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-C001.nc"
-  default: "esa-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-C001.nc"
+  month: "cryotempo-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m}-A001.nc"
+  monthly: "cryotempo-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m}-A001.nc"
+  isoweek: "cryotempo-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-C001.nc"
+  day: "cryotempo-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m%d}-A001.nc"
+  custom: "cryotempo-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-C001.nc"
+  default: "cryotempo-cryotempo-l3c-si-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-C001.nc"
 
 product_level_subfolder: l3c_grid
 
@@ -37,7 +37,7 @@ global_attributes:
   - processing_level: "Level-3 Collated (l3c)"
   - summary: ""
   - keywords: ""
-  - id: "esa-cryotempo-l3-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m%d}-{time_coverage_end:%Y%m%d}-C001"
+  - id: "cryotempo-cryotempo-l3-cryosat2-rep-{grid_id}-{time_coverage_start:%Y%m%d}-{time_coverage_end:%Y%m%d}-C001"
   - naming_authority: "de.awi"
   - keywords_vocabulary: "GCMD Science Keywords"
   - doi: "None"
