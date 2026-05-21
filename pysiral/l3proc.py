@@ -1963,6 +1963,9 @@ class Level3GriddedClassifiers(Level3ProcessorItem):
         for xi, yj in self.l3grid.grid_indices:
 
             classifier_grid_values = np.array(classifier_stack[yj][xi])
+            if len(classifier_grid_values) == 0:
+                continue
+
             surface_type_flags = np.array(surface_type[yj][xi])
 
             # Get the surface type target subset
@@ -1980,5 +1983,6 @@ class Level3GriddedClassifiers(Level3ProcessorItem):
             # A minimum of two values is needed to compute statistics
             if len(subset) < 2:
                 continue
+
             result = self._stat_functions[statistic](classifier_grid_values[subset])
             self.l3grid.vars[grid_var_name][yj][xi] = result

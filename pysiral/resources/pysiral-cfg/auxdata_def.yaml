@@ -6,6 +6,7 @@
 # List of icechart products (fmi version)
 icechart:
 
+
     # CANADIAN ICE CHARTS
     canada:
         pyclass: IC
@@ -122,7 +123,6 @@ mss:
 
 # Mean dynamic topography class
 mdt:
-
     dtu17:
         pyclass: DTUMDTGrid
         long_name: DTU17 mean dynamic topography (1/8 degree grid)
