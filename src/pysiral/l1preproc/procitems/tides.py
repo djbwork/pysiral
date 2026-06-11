@@ -106,7 +106,7 @@ class CryoTEMPOExternalTides(L1PProcItem):
 
             # Get both tides
             external_tide_value = ds.variables[external_var_name].values
-            l1_tide_value = l1.get_parameter_by_name("range_correction", l1_var_name)
+            l1_tide_value = l1.get_parameter_by_name("correction", l1_var_name)
 
             # Dimensions must match (no full check of actual times)
             if external_tide_value.size != l1_tide_value.size:
@@ -121,12 +121,12 @@ class CryoTEMPOExternalTides(L1PProcItem):
                 return
 
             # Check if NaNs exist in external data
-            nans_indices = np.where(np.isnan(tide_file_value))[0]
+            nans_indices = np.where(np.isnan(external_tide_value))[0]
             if len(nans_indices) > 0:
-                tide_file_value = self.handle_nan_values(external_tide_value, nans_indices, l1_tide_value)
+                external_tide_value = self.handle_nan_values(external_tide_value, nans_indices, l1_tide_value)
 
             # All checks complete
-            l1.set_parameter_by_name("range_correction", l1_var_name, external_tide_value)
+            l1.set_parameter_by_name("correction", l1_var_name, external_tide_value)
 
     def handle_nan_values(
             self,
