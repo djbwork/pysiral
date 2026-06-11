@@ -923,7 +923,7 @@ class USNICGrid(AuxdataBaseClass):
         }
 
         # Set the variables with only time dimension
-        var_name_dict = self.cfg.get("var_name_dict", var_name_dict_default)
+        var_name_dict = self.cfg.options.get("var_name_dict", var_name_dict_default)
         time_dim_vars = [v for v in ice_chart_l2_track.attrs["time_dim_parameter"] if v in var_name_dict]
         for var_name in time_dim_vars:
             self.register_auxvar(var_id_dict[var_name], var_name_dict[var_name], ice_chart_l2_track[var_name].values)

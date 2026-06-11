@@ -209,16 +209,16 @@ snow:
             subfolders: null
 
     cryotempo_nh_clim:
-        pyclass: Warren99SMLGClim
+        pyclass: CryoTempoNorthernClimatology
         long_name: Merged monthly snow depth and density climatology from Warren99 and filtered SnowModel-LG snow depth.
         filename: "snow-climatology-w99_smlg-ease2_nh_12p5km-p1m-v1p0.nc"
-        local_repository: clim_w99amsr2
+        local_repository: cryotempo_nh_clim
         options:
             variable_map:
-                depth: merged_snow_depth
-                depth_uncertainty: merged_snow_depth_uncertainty
-                density: w99_snow_density_filtered
-                density_uncertainty: w99_snow_density_filtered_uncertainty
+                depth: surface_snow_thickness_merged
+                depth_uncertainty: surface_snow_thickness_uncertainty_merged
+                density: surface_snow_density_merged
+                density_uncertainty: surface_snow_density_uncertainty_merged
             north:
                 projection:
                     proj: laea
@@ -388,6 +388,19 @@ sic:
             - year
             - month
 
+
+    osi-438:
+        pyclass: OsiSafSIC
+        long_name: Global Sea-Ice Concentration interim climate data record (AMSR), version 3
+        filenaming: "ice_conc_{hemisphere_code}_ease2-250_icdr-v3p0-amsr_{year}{month}{day}1200.nc"
+        local_repository: osi-438
+        options:
+            is_cdr_icdr: False
+            north: *osi_ease2_grid_nh
+            south: *osi_ease2_grid_sh
+        subfolders:
+            - year
+            - month
 
     # This SIC data product definition is a customization that automatically merges the
     # OSI-SAF 438 and OSI-SAF 458 products. This functionality is a unique feature
