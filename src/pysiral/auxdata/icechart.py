@@ -622,7 +622,7 @@ class USNICGridFileCatalog(object):
         """
         Get the closest file for the given date within the maximum offset.
 
-        :param target_date: The target date.
+        :param target_date_list: The target date.
         :param max_offset_days: The maximum offset in days an ice chart period can
             be away from the target date. The default is 7 days, to allow for the
             periods where ice charts were only distributed bi-weekly.
@@ -842,6 +842,12 @@ class USNICGrid(AuxdataBaseClass):
         """
 
         # Retrieve the file path for the requested date from a property of the auxdata parent class
+        if self.requested_filepath is None:
+            msg = f"{self.__class__.__name__}: File search returned None object"
+            self.add_handler_message(msg)
+            self.error.add_error("auxdata_missing_sitype", msg)
+            return
+
         path = Path(self.requested_filepath)
 
         # Validation
