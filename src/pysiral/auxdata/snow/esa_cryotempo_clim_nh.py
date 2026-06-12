@@ -3,8 +3,8 @@
 import numpy as np
 import xarray as xr
 
-from loguru import logger
-from datetime import datetime, date
+from datetime import date, datetime
+from dateutil.relativedelta import relativedelta
 from typing import List, Tuple
 
 from pysiral.auxdata import AuxdataBaseClass, GridTrackInterpol
@@ -58,14 +58,15 @@ class Warren99SMLGClimDataContainer(object):
 
         # The grid is the same for all month, therefore we can just retrieve the fields
         # from the first data sets
-        return self.data.longitude.values, self.data.latitude.values
+        return self.ds.lon.values, self.ds.lat.values
 
-    def get_var(self, parameter_name, date_tuple):
+    def get_var(self, parameter_name: str, target_date: date):
         """
         Get the geophysical variable from the netCDF(s). If daily scaling is activated, the date information
         given by date tuple will be used to create output fields that are interpolated between adjacent month.
+
         :param parameter_name:
-        :param date_tuple:
+        :param target_date:
         :return:
         """
 
@@ -74,52 +75,57 @@ class Warren99SMLGClimDataContainer(object):
         # 1. daily scaling is off
         #    -> return the single field of the single data set for the corresponding month
         if not self.use_daily_scaling:
-            return self.get_monthly_field(date_tuple[1], parameter_name)
-
-        breakpoint()
+            return self.get_monthly_field(target_date.month, parameter_name)
 
         # 2. daily scaling is on and requested date is a reference date
         #    -> return the field of the single data set for the reference date
-        is_reference_date = date_tuple[1:] in self.reference_dates
+        reference_dates = self.get_reference_dates(target_date)
+        is_reference_date = target_date in reference_dates
         if self.use_daily_scaling and is_reference_date:
-            return self.get_monthly_field(date_tuple[1], parameter_name)
+            return self.get_monthly_field(target_date.month, parameter_name)
 
         # 3. daily scaling is on and requested date is between reference dates
         #   -> return a linear interpolated field based on the distance to the two enclosing
         #      reference dates
-        if self.use_daily_scaling and not is_reference_date:
-            return self.get_weighted_variable(date_tuple, parameter_name)
+        return self.get_weighted_variable(target_date, parameter_name)
 
-    @staticmethod
-    def get_reference_datetimes(target_date: date) -> List[date]:
+    def get_reference_dates(self, target_date: date) -> List[date]:
         """
-        Creates datetimes objects for the reference dates for the actual winter season
 
-        :param target_date:
+        Creates a list of dates for the center of each month to be used
+        for the daily scaling. The list contains the center of the months
+        of the target year plus December of the previous and January of
+        the following month.
+
+        :param target_date: The target date of the Level-2 data object
+            for which the daily scaling is applied
 
         :return: List of reference times for determining the two months for temporal interpolation
         """
-        months_center = list(zip(range(1, 13), [15]*12))  # 15th of each month
-        reference_dates = [months_center[11], *months_center, months_center[0]]
-        # Get the winter id (year of October for October - April winter)
-        years = [target_date.year-1, *[target_date.year]*12, target_date.year+1]
-        # Get the winter id (year of October for October - April winter)
-        return [date(yyyy, mm, dd) for yyyy, (mm, dd) in zip(years, reference_dates)]
+        reference_dates = [date(target_date.year, *m) for m in self.months_centers]
+        # Return with padded month
+        return [
+            reference_dates[0] + relativedelta(months=-1),
+            *reference_dates,
+            reference_dates[-1] + relativedelta(months=1)
+        ]
 
-    def get_monthly_field(self, month_num, parameter_name):
+    def get_monthly_field(self, month_num: int, variable_name: str) -> np.ndarray:
         """
         Return the monthly field for given parameter name
-        :param month_num:
-        :param parameter_name:
-        :return:
+
+        :param month_num: The number of the target month [1-12]
+        :param variable_name: The variable of the dataset
+
+        :raises KeyError: If variable_name is not in the dataset
+
+        :return: The data as numpy array without month dimension
         """
-        index = self.month_nums.index(month_num)
-        variable = getattr(self.data[index], parameter_name, None)
-        if variable is None:
-            msg = "Dataset has no variable: {}".format(parameter_name)
-            self.error.add_error("invalid-variable", msg)
-            self.error.raise_on_error()
-        return variable.values
+        month_index = month_num - 1
+        try:
+            return self.ds.variables[variable_name].values[month_index, :, :]
+        except KeyError:
+            raise KeyError(f"Variable {variable_name} not found in the dataset")
 
     # def _get_weighted_dataset(self, target_date: date) -> xr.Dataset:
     #     """
@@ -137,7 +143,6 @@ class Warren99SMLGClimDataContainer(object):
     def months_centers(self) -> List[Tuple[int, int]]:
         return list(zip(range(1, 13), [15] * 12))  # 15th of each month
 
-
     def get_reference_month_nums(self, target_date: date) -> Tuple[int, int, float]:
         """
         Return the two month required for the interpolation.
@@ -147,34 +152,21 @@ class Warren99SMLGClimDataContainer(object):
         :return: month_left, month_right, weight_factor
         """
 
-        ref_datetimes = self.get_reference_datetimes(target_date)
-        ref_date_offset = [(target_date-dt).days for dt in ref_datetimes]
+        ref_dates = self.get_reference_dates(target_date)
+        ref_date_offset = [(target_date-dt).days for dt in ref_dates]
 
         # Find the index of the first months, where the difference in day is 0 or less (right boundary)
         ref_after_idx = int(np.argmax(np.array(ref_date_offset) <= 0))
         ref_before_idx = ref_after_idx - 1
 
         # Compute the weighting factor
-        month_before = ref_datetimes[ref_before_idx].month
-        month_after = ref_datetimes[ref_after_idx].month
-        period_n_days = (ref_datetimes[ref_after_idx] - ref_datetimes[ref_before_idx]).days
+        month_before = ref_dates[ref_before_idx].month
+        month_after = ref_dates[ref_after_idx].month
+        period_n_days = (ref_dates[ref_after_idx] - ref_dates[ref_before_idx]).days
         weight_factor = float(ref_date_offset[ref_before_idx])/float(period_n_days)
 
         # All done
         return month_before, month_after, weight_factor
-
-    def get_reference_datetimes(self, date_tuple):
-        """
-        Creates datetimes objects for the reference dates for the actual winter season
-        :param date_tuple:
-        :return:
-        """
-
-        # Get the winter id (year of October for October - April winter)
-        winter_id = date_tuple[0] - int(date_tuple[1] < 10)
-        year_vals = [winter_id]*3 + [winter_id+1]*4
-        ref_dts = [datetime(yyyy, mm, dd) for yyyy, (mm, dd) in zip(year_vals, self.reference_dates)]
-        return ref_dts
 
     def get_weighted_variable(self, date_tuple, parameter_name):
         """
@@ -196,12 +188,12 @@ class Warren99SMLGClimDataContainer(object):
         return var
 
     @property
-    def w99_weight(self):
+    def w99_weight(self) -> np.ndarray:
         """
         Return the static regional mask for the merged climatology
         :return:
         """
-        return self.ds.w99_weight.values if self.ds is not None else None
+        return self.ds.warren99_weight.values if self.ds is not None else np.full(self.ds.lon.shape, np.nan)
 
 
 class CryoTempoNorthernClimatology(AuxdataBaseClass):
@@ -261,6 +253,7 @@ class CryoTempoNorthernClimatology(AuxdataBaseClass):
         """
 
         # Extract along track snow depth and density
+        self.set_requested_date_from_l2(l2)
         snow = self.get_snow_track(l2)
 
         # Register Variables
@@ -276,7 +269,7 @@ class CryoTempoNorthernClimatology(AuxdataBaseClass):
 
         # Get the MYI fraction variable
         my_fraction_var_name = self.cfg.options.get("myi_fraction_var_name", "sitype")
-        myi_fraction = getattr(l2, my_fraction_var_name, None)
+        myi_fraction = l2.get_parameter_by_name(my_fraction_var_name)
         if myi_fraction is None:
             msg = f"Level-2 object has no attribute: {my_fraction_var_name}"
             self.error.add_error("missing-l2-variable", msg)
@@ -292,7 +285,7 @@ class CryoTempoNorthernClimatology(AuxdataBaseClass):
         snow = SnowParameterContainer()
         for var_name in var_map.keys():
             source_name = var_map[var_name]
-            sdgrid = self.data.get_var(source_name, self._requested_date)
+            sdgrid = self.data.get_var(source_name, self.requested_date)
             setattr(snow, var_name, grid2track.get_from_grid_variable(sdgrid))
 
         # Extract the W99 weight for the specific track
