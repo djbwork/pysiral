@@ -38,7 +38,7 @@ class AlexandrovSeaIceDensity(Level2ProcessorStep):
 
         # Scales with MYI fraction
         myi_fraction_var_name = self.cfg.options.get("myi_fraction_var_name", "sitype")
-        myi_fraction = l2.get_attribute(myi_fraction_var_name)
+        myi_fraction = l2.get_parameter_by_name(myi_fraction_var_name)
         rho_i = rho_i_fyi - myi_fraction * (rho_i_fyi - rho_i_myi)
 
         # Compute uncertainty of sea ice density

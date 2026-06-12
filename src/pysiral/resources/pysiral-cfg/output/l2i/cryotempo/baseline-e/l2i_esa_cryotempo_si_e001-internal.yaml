@@ -8,8 +8,8 @@ metadata:
 
 # Output Definition
 filenaming:
-  default: CS_TEST_SIR_TDP_SI_{source_hemisphere:select;ARCTIC;ANTARC}_{startdt:%Y%m%dT%H%M%S}_{stopdt:%Y%m%dT%H%M%S}_{fncycle}_{fnrel_orbit}_{l2_version_tag}.nc
-product_level_subfolder: l2-test
+  default: CS_OFFL_SIR_TDP_SI_{source_hemisphere:select;ARCTIC;ANTARC}_{startdt:%Y%m%dT%H%M%S}_{stopdt:%Y%m%dT%H%M%S}_{fncycle}_{fnrel_orbit}_{l2_version_tag}-internal.nc
+product_level_subfolder: l2-internal
 
 # A list of global attributes
 # (see: https://www.unidata.ucar.edu/software/thredds/current/netcdf-java/metadata/DataDiscoveryAttConvention.html)
@@ -260,6 +260,87 @@ variables:
     standard_name: sea_surface_height_above_mean_sea_level standard_error
     units: m
     coordinates: time
+
+  sea_ice_type:
+    var_source_name: ice_chart_multi_year_ice_fraction
+    long_name: "fraction of multi-year ice"
+    standard_name: sea_ice_classification
+    units: "1"
+    valid_min: 0.0
+    valid_max: 1.0
+    coordinates: time
+    comment: "source variable: ice_chart_multi_year_ice_fraction and named sea_ice_type for backward compatibility"
+
+  ice_chart_thin_ice_fraction:
+    long_name: "fraction of thin ice"
+    units: "1"
+    valid_min: 0.0
+    valid_max: 1.0
+    coordinates: time
+
+  ice_chart_first_year_ice_fraction:
+    long_name: "fraction of first-year ice"
+    units: "1"
+    valid_min: 0.0
+    valid_max: 1.0
+    coordinates: time
+
+  ice_chart_multi_year_ice_fraction:
+    long_name: "fraction of multi-year ice"
+    units: "1"
+    valid_min: 0.0
+    valid_max: 1.0
+    coordinates: time
+
+  sea_ice_type_uncertainty:
+    long_name: "uncertainty of sea ice classification"
+    standard_name: sea_ice_classification standar_error
+    units: "1"
+    coordinates: time
+
+  sea_ice_concentration:
+    long_name: "sea ice concentration"
+    standard_name: sea_ice_area_fraction
+    units: percent
+    valid_min: 0.0
+    valid_max: 100.0
+    coordinates: time
+
+  snow_density:
+    long_name: "density of the snow layer"
+    units: kg m-3
+    coordinates: time
+
+  snow_density_uncertainty:
+    long_name: "uncertainty of the snow layer density"
+    units: kg m-3
+    coordinates: time
+
+  sea_ice_density:
+    long_name: "density of the sea ice layer"
+    standard_name: sea_ice_density
+    units: kg m-3
+    coordinates: time
+
+  sea_ice_density_uncertainty:
+    long_name: "uncertainty of the sea ice layer density"
+    standard_name: sea_ice_density standard_error
+    units: kg m-3
+    coordinates: time
+
+  sea_ice_thickness:
+    long_name: "thickness of the sea ice layer"
+    standard_name: sea_ice_thickness
+    units: m
+    ancillary_variables: sea_ice_thickness_uncertainty
+    coordinates: longitude latitude
+    comment: "thickness of the sea ice layer"
+
+  sea_ice_thickness_uncertainty:
+    long_name: "sea ice thickness uncertainty"
+    units: m
+    coordinates: longitude latitude
+    comment: "algorithm uncertainty (error propagation) of the sea ice thickness retrieval"
 
   ocog_width:
     long_name: "ocog width"
