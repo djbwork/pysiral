@@ -31,7 +31,7 @@ auxdata:
         name: usnic_grid
         options:
             tie_breaker: "after"   # Options: "before", "after"
-            max_offset_days: 7
+            max_offset_days: 14
             hemisphere: *hemisphere
             # This overrides the default output variables
             var_name_dict:
