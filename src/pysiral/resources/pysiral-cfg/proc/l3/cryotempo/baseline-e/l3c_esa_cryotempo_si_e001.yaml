@@ -34,7 +34,7 @@ l2_parameter:
         fillvalue: .NAN
 
     radar_freeboard_uncertainty:
-        grid_method: none
+        grid_method: average
         dtype: f4
         fillvalue: .NAN
 
