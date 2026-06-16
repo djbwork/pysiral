@@ -74,7 +74,7 @@ l2_parameter:
         fillvalue: .NAN
 
     sea_ice_density_uncertainty:
-        grid_method: none
+        grid_method: average
         dtype: f4
         fillvalue: .NAN
 
