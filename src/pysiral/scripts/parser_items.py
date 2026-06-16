@@ -361,7 +361,7 @@ class L2iDirectory(ArgparseArgumentsArgs):
     name_or_flags: ClassVar[list[str]] = ["-i", "--l2i-product-dir", "--l2-product-dir"]
     nargs: Optional[str] = "+"
     dest: str = "l2_product_directory"
-    type: Callable = dir_type(ends_with=["l2i", "l2"])
+    type: Callable = dir_type()
     metavar: str = "<l2 directory>"
     help: str = """
     Target Level-2i (l2i) product directory where the Level-2 output files will be written.

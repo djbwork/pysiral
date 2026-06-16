@@ -232,7 +232,7 @@ class AuxdataBaseClass(object):
 
     @property
     def has_data_loaded(self) -> bool:
-        return self.data is not None if hasattr(self, "_data") else False
+        return self._data is not None if hasattr(self, "_data") else False
 
     @property
     def exception_on_error(self) -> bool:
