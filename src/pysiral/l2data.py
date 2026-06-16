@@ -419,6 +419,12 @@ class Level2Data(object):
     def _gett_attr_geospatial_str(value):
         return "%.4f" % value
 
+    def _get_attr_adf_ice_chart(self, *args):
+        return self.info.adf_ice_chart
+
+    def _get_attr_adf_sea_ice_concentration(self, *args):
+        return self.info.adf_sea_ice_concentration
+
     def _get_attr_source_auxdata_sic(self, *args):
         value = self._auxdata_source_dict.get("sic", "unkown")
         if value == "unkown":

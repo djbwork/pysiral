@@ -638,7 +638,7 @@ class USNICGridFileCatalog(object):
                 logger.info(f"Found {value} on {target_date}.")
                 return value[0]
             case Failure(_):
-                logger.warning(f"{result}")
+                logger.error(f"{result}")
                 return None
         return None
 
@@ -675,7 +675,7 @@ class USNICGridFileCatalog(object):
 
         # Find the closest ice chart (either start or end)
         closest_before = self._get_days_offset(self.ctlg["validity_start_date"], target_date)
-        closest_after =  self._get_days_offset(self.ctlg["validity_end_date"], target_date)
+        closest_after = self._get_days_offset(self.ctlg["validity_end_date"], target_date)
 
         closest_before_idx = np.argmin(closest_before)
         closest_before_value = closest_before[closest_before_idx]
@@ -782,8 +782,13 @@ class USNICGrid(AuxdataBaseClass):
             # Get icechart data frame for trajectory
             ice_chart_l2_track = self.extract_track(l2.longitude, l2.latitude, dataset)
 
+        # Save filename of ice chart to Level-2 metadata
+        ice_chart_filepath = self.requested_filepath.name if self.requested_filepath is not None else "None"
+        l2.info.adf_ice_chart = ice_chart_filepath
+
         # Pre-process parameters and set to l2 object
         self.set_l2_parameters(l2, ice_chart_l2_track)
+
 
     @staticmethod
     def get_empty_dataset(time: np.ndarray) -> xr.Dataset:
