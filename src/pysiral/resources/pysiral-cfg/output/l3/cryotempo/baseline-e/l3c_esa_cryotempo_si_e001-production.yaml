@@ -8,14 +8,14 @@ metadata:
 
 # Output Definition (for each period definition)
 filenaming:
-  month: "CS_OFFL_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m}_E001-TDS1.nc"
-  monthly: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m}-E001-TDS1.nc"
-  isoweek: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001-TDS1.nc"
-  day: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}-E001-TDS1.nc"
-  custom: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001-TDS1.nc"
-  default: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001-TDS1.nc"
+  month: "CS_OFFL_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m}_E001.nc"
+  monthly: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m}-E001.nc"
+  isoweek: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001.nc"
+  day: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}-E001.nc"
+  custom: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001.nc"
+  default: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001.nc"
 
-product_level_subfolder: l3c_internal
+product_level_subfolder: l3c
 
 grid_options:
   flip_yc: True
@@ -24,7 +24,7 @@ grid_options:
 # A list of global attributes
 # (see: https://www.unidata.ucar.edu/software/thredds/current/netcdf-java/metadata/DataDiscoveryAttConvention.html)
 global_attributes:
-  - title: "Gridded Cryo-TEMPO Winter Sea Ice Freeboard, Snow Depth and Thickness (Baseline-E Test Data Set 1)"
+  - title: "Gridded Cryo-TEMPO Winter Sea Ice Freeboard, Snow Depth and Thickness (Baseline-E)"
   - institution: ""
   - source: ""
   - platform: "CryoSat-2"
@@ -105,6 +105,16 @@ variables:
     coordinates: "time lat lon"
     comment: ""
 
+  sea_ice_freeboard_uncertainty:
+    var_source_name: sea_ice_freeboard_l3_uncertainty
+    long_name: "Sea Ice Freeboard"
+    standard_name: sea_ice_freeboard
+    units: m
+    grid_mapping: "Lambert_Azimuthal_Grid"
+    coordinates: "time lat lon"
+    comment: ""
+
+
   sea_ice_freeboard_filtered:
     long_name: "Sea Ice Freeboard Filtered"
     standard_name: sea_ice_freeboard
@@ -135,10 +145,10 @@ variables:
     units: m
     grid_mapping: "Lambert_Azimuthal_Grid"
     coordinates: "time lat lon"
-    comment: "Computed from Sea Ice Freeboard Solution 1, Snow Depth Solution 1, Snow Density Solution 1 and Sea Ice Density Solution 1"
     ancillary_variables: "snow_density_uncertainty"
 
   sea_ice_thickness_uncertainty:
+    var_source_name: sea_ice_thickness_l3_uncertainty
     long_name: "Sea Ice Thickness Uncertainty"
     standard_name: sea_ice_thickness standard_error
     units: m

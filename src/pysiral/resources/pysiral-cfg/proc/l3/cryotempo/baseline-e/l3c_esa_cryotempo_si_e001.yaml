@@ -18,15 +18,60 @@ l2_parameter:
         dtype: f4
         fillvalue: .NAN
 
-    ice_chart_fyi_fraction:
+    ice_chart_first_year_ice_fraction:
         grid_method: average
         dtype: f4
         fillvalue: .NAN
 
-    ice_chart_myi_fraction:
+    ice_chart_multi_year_ice_fraction:
         grid_method: average
         dtype: f4
         fillvalue: .NAN
+
+    sea_ice_concentration:
+        grid_method: average
+        dtype: f4
+        fillvalue: .NAN
+
+    distance_to_ocean:
+        grid_method: average
+        dtype: f4
+        fillvalue: .NAN
+
+    samosa_surface_height_standard_deviation:
+        grid_method: average
+        dtype: f4
+        fillvalue: .NAN
+
+    samosa_mean_square_slope:
+        grid_method: average
+        dtype: f4
+        fillvalue: .NAN
+
+    samosa_misfit:
+        grid_method: average
+        dtype: f4
+        fillvalue: .NAN
+
+    samosa_misfit_sub_waveform:
+        grid_method: average
+        dtype: f4
+        fillvalue: .NAN
+
+    samosa_leading_edge_error:
+        grid_method: average
+        dtype: f4
+        fillvalue: .NAN
+
+    ocog_width:
+        grid_method: average
+        dtype: f4
+        fillvalue: .NAN
+
+    surface_type:
+        grid_method: none
+        dtype: i4
+        fillvalue: -1
 
     radar_freeboard:
         grid_method: average
@@ -144,6 +189,18 @@ processing_items:
             nh25kmease2: LandOceanLakeMask_nh_ease2-250.nc
         mask_variable_name: landsea
         density_variable_name: ocean_area_fraction
+
+    # Compute surface type statistics based on surface type classification
+    - label: "Compute surface type statistics"
+      module_name: pysiral.l3proc.alg.statistics
+      class_name: Level3SurfaceTypeStatistics
+      options: {}
+
+    # Compute surface type statistics based on surface type classification
+    - label: "Number of valid freeboards"
+      module_name: pysiral.l3proc.alg.statistics
+      class_name: Level3ValidSeaIceFreeboardCount
+      options: {}
 
     # Compute the uncertainties of gridded parameter
     - label: "Compute gridded uncertainties"
