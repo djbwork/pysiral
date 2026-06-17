@@ -8,7 +8,7 @@ metadata:
     platform: cryosat2
     version: E001
     file_version_tag: "E001"
-    hemisphere: north
+    hemisphere: &hemisphere north
 
 # --- Ingest auxiliary data ---
 auxdata:
@@ -23,16 +23,16 @@ auxdata:
             latitude_range: [45.0, 90.0]
 
     - sic:
-        name: c3s
+        name: osi-438
         options:
-            version: v3p0
             exception_on_error: False
 
     - icechart:
-        name: usnic_icgrid
+        name: usnic_grid
         options:
-            interpolate_gaps: True
-            exception_on_error: False
+            tie_breaker: "after"   # Options: "before", "after"
+            max_offset_days: 14
+            hemisphere: *hemisphere
             # This overrides the default output variables
             var_name_dict:
               stage_of_development_highest_concentration: "ice_chart_stage_of_development_highest_concentration"
@@ -176,7 +176,7 @@ procsteps:
               pyclass: SAMOSAPlusRetracker
               options:
                 surface_class: sea_ice
-                use_multiprocessing: False
+                use_multiprocessing: True
                 num_processes: "pysiral-cfg"
                 fit_method: "samosap_standard"
                 samosap_fit_kwargs:

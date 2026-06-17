@@ -622,7 +622,7 @@ class USNICGridFileCatalog(object):
         """
         Get the closest file for the given date within the maximum offset.
 
-        :param target_date: The target date.
+        :param target_date_list: The target date.
         :param max_offset_days: The maximum offset in days an ice chart period can
             be away from the target date. The default is 7 days, to allow for the
             periods where ice charts were only distributed bi-weekly.
@@ -638,7 +638,7 @@ class USNICGridFileCatalog(object):
                 logger.info(f"Found {value} on {target_date}.")
                 return value[0]
             case Failure(_):
-                logger.warning(f"{result}")
+                logger.error(f"{result}")
                 return None
         return None
 
@@ -675,7 +675,7 @@ class USNICGridFileCatalog(object):
 
         # Find the closest ice chart (either start or end)
         closest_before = self._get_days_offset(self.ctlg["validity_start_date"], target_date)
-        closest_after =  self._get_days_offset(self.ctlg["validity_end_date"], target_date)
+        closest_after = self._get_days_offset(self.ctlg["validity_end_date"], target_date)
 
         closest_before_idx = np.argmin(closest_before)
         closest_before_value = closest_before[closest_before_idx]
@@ -782,8 +782,13 @@ class USNICGrid(AuxdataBaseClass):
             # Get icechart data frame for trajectory
             ice_chart_l2_track = self.extract_track(l2.longitude, l2.latitude, dataset)
 
+        # Save filename of ice chart to Level-2 metadata
+        ice_chart_filepath = self.requested_filepath.name if self.requested_filepath is not None else "None"
+        l2.info.adf_ice_chart = ice_chart_filepath
+
         # Pre-process parameters and set to l2 object
         self.set_l2_parameters(l2, ice_chart_l2_track)
+
 
     @staticmethod
     def get_empty_dataset(time: np.ndarray) -> xr.Dataset:
@@ -842,6 +847,12 @@ class USNICGrid(AuxdataBaseClass):
         """
 
         # Retrieve the file path for the requested date from a property of the auxdata parent class
+        if self.requested_filepath is None:
+            msg = f"{self.__class__.__name__}: File search returned None object"
+            self.add_handler_message(msg)
+            self.error.add_error("auxdata_missing_sitype", msg)
+            return
+
         path = Path(self.requested_filepath)
 
         # Validation
@@ -923,7 +934,7 @@ class USNICGrid(AuxdataBaseClass):
         }
 
         # Set the variables with only time dimension
-        var_name_dict = self.cfg.get("var_name_dict", var_name_dict_default)
+        var_name_dict = self.cfg.options.get("var_name_dict", var_name_dict_default)
         time_dim_vars = [v for v in ice_chart_l2_track.attrs["time_dim_parameter"] if v in var_name_dict]
         for var_name in time_dim_vars:
             self.register_auxvar(var_id_dict[var_name], var_name_dict[var_name], ice_chart_l2_track[var_name].values)

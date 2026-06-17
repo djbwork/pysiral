@@ -137,6 +137,20 @@ variables:
     coordinates: longitude latitude
     comment: "algorithm uncertainty (error propagation) of the sea ice freeeboard retrieval"
 
+  sea_ice_thickness:
+    long_name: "thickness of the sea ice layer"
+    standard_name: sea_ice_thickness
+    units: m
+    ancillary_variables: sea_ice_thickness_uncertainty
+    coordinates: longitude latitude
+    comment: "thickness of the sea ice layer"
+
+  sea_ice_thickness_uncertainty:
+    long_name: "sea ice thickness uncertainty"
+    units: m
+    coordinates: longitude latitude
+    comment: "algorithm uncertainty (error propagation) of the sea ice thickness retrieval"
+
   sea_ice_freeboard_filtered:
     long_name: "smoothed freeboard of the sea ice layer"
     standard_name: sea_ice_freeboard
