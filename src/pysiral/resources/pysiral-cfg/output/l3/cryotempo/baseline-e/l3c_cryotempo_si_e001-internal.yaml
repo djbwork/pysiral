@@ -8,12 +8,12 @@ metadata:
 
 # Output Definition (for each period definition)
 filenaming:
-  month: "CS_OFFL_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m}_E001-Internal.nc"
-  monthly: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m}-E001-Internal.nc"
-  isoweek: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001-Internal.nc"
-  day: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}-E001-Internal.nc"
-  custom: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001-Internal.nc"
-  default: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001-Internal.nc"
+  month: "CS_OFFL_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m}_E001-internal.nc"
+  monthly: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m}-E001-internal.nc"
+  isoweek: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001-internal.nc"
+  day: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}-E001-internal.nc"
+  custom: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001-internal.nc"
+  default: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001-internal.nc"
 
 product_level_subfolder: l3c
 
@@ -24,49 +24,38 @@ grid_options:
 # A list of global attributes
 # (see: https://www.unidata.ucar.edu/software/thredds/current/netcdf-java/metadata/DataDiscoveryAttConvention.html)
 global_attributes:
-  - title: "Gridded Cryo-TEMPO Winter Sea Ice Freeboard, Snow Depth and Thickness (Baseline-E)"
-  - institution: ""
-  - source: ""
+  - title: "Cryo-TEMPO Sea Ice Thematic Product"
+  - project: "ESA Cryo-TEMPO"
+  - creator_name: "ESA Cryo-TEMPO Project"
+  - creator_url: "http://cryosat.mssl.ucl.ac.uk/tempo"
+  - date_created: "{utcnow}"  
   - platform: "CryoSat-2"
   - sensor: "SIRAL"
   - history: "{utcnow:%Y%m%dT%H%M%SZ} - Product generated with pysiral version {pysiral_version}"
-  - references: ""
   - tracking_id: "{uuid}"
-  - conventions: "CF-1.6"
-  - product_version: ""
+  - conventions: "CF-1.8"
+  - product_baseline: "E"
+  - product_version: "001"
+  - sw_version: "{pysiral_version}"  
   - processing_level: "Level-3 Collated (l3c)"
-  - summary: ""
-  - keywords: ""
-  - id: "CS_OFFL_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}-{time_coverage_end:%Y%m%d}-E001"
-  - naming_authority: ""
+  - id: "CS_OFFL_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}-{time_coverage_end:%Y%m%d}-E001-internal"
   - keywords_vocabulary: "GCMD Science Keywords"
   - doi: "None"
   - cdm_data_type: "Grid"
-  - comment: ""
   - date_created: "{utcnow:%Y%m%dT%H%M%SZ}"
-  - creator_name: ""
-  - creator_type: ""
-  - creator_url: ""
-  - contributor_name: ""
-  - contributor_role: ""
-  - project: "ESA Cryo-TEMPO"
-  - publisher_name: ""
-  - publisher_url: ""
-  - publisher_email: ""
   - geospatial_lat_min: "{geospatial_lat_min}"
-  - geospatial_lat_max: 90.0
-  - geospatial_lon_min: -180.0
-  - geospatial_lon_max: 180.0
+  - geospatial_lat_max: "{geospatial_lat_max}"
+  - geospatial_lon_min: "{geospatial_lon_min}"
+  - geospatial_lon_max: "{geospatial_lon_max}"
   - geospatial_vertical_min: 0.0
   - geospatial_vertical_max: 0.0
   - spatial_resolution: "{grid_spacing_tag} grid spacing"
-  - geospatial_bounds_crs: "EPSG:6931"
+  - geospatial_bounds_crs: "{source_hemisphere:select;EPSG:6931;EPSG:6932}"
   - time_coverage_start: "{time_coverage_start}"
   - time_coverage_end: "{time_coverage_end}"
   - time_coverage_duration: "{time_coverage_duration}"
   - time_coverage_resolution: "{time_coverage_duration:period}"
   - standard_name_vocabulary: "CF Standard Name Table (v36, 21 September 2016)"
-  - license: ""
 
 # A list of variables and their attributes
 # The variable subtag must match the name of the level-3 parameter
