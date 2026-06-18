@@ -47,10 +47,9 @@ auxdata:
             latitude_range: [45.0, 90.0]
 
     - sic:
-        name: c3s
+        name: osi-438
         options:
-            version: v3p0
-            exception_on_error: True
+            exception_on_error: False
 
 
 # --- Level-2 processor steps ---
