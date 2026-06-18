@@ -31,7 +31,7 @@ global_attributes:
   - geospatial_vertical_max: 0.0
   - time_coverage_start: "{time_coverage_start}"
   - time_coverage_end: "{time_coverage_end}"
-  - product_baseline: "D"
+  - product_baseline: "E"
   - product_version: "001"
   - Conventions: "CF-1.8"
   - cycle_number: "{cycle}"
