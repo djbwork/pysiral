@@ -24,11 +24,10 @@ grid_options:
 # A list of global attributes
 # (see: https://www.unidata.ucar.edu/software/thredds/current/netcdf-java/metadata/DataDiscoveryAttConvention.html)
 global_attributes:
-  - title: "Cryo-TEMPO Sea Ice Thematic Product"
+  - title: "Cryo-TEMPO Sea Ice Thematic Product (internal version with additional variables for quality control and diagnostics)"
   - project: "ESA Cryo-TEMPO"
   - creator_name: "ESA Cryo-TEMPO Project"
   - creator_url: "http://cryosat.mssl.ucl.ac.uk/tempo"
-  - date_created: "{utcnow}"  
   - platform: "CryoSat-2"
   - sensor: "SIRAL"
   - history: "{utcnow:%Y%m%dT%H%M%SZ} - Product generated with pysiral version {pysiral_version}"
@@ -45,8 +44,8 @@ global_attributes:
   - date_created: "{utcnow:%Y%m%dT%H%M%SZ}"
   - geospatial_lat_min: "{geospatial_lat_min}"
   - geospatial_lat_max: "{geospatial_lat_max}"
-  - geospatial_lon_min: "{geospatial_lon_min}"
-  - geospatial_lon_max: "{geospatial_lon_max}"
+  - geospatial_lon_min: -180.0
+  - geospatial_lon_max: 180.0
   - geospatial_vertical_min: 0.0
   - geospatial_vertical_max: 0.0
   - spatial_resolution: "{grid_spacing_tag} grid spacing"
