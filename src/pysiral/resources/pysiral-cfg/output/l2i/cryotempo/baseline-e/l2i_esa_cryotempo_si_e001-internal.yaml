@@ -123,7 +123,7 @@ variables:
     long_name: "Radar freeboard uncertainty"
     units: m
     coordinates: longitude latitude
-    comment: "algorithm uncertainty (error propagation) of the radar freeeboard retrieval"
+    comment: "algorithm uncertainty (error propagation) of the radar freeboard retrieval"
 
   sea_ice_freeboard:
     long_name: "freeboard of the sea ice layer"
@@ -137,7 +137,7 @@ variables:
     long_name: "sea ice freeboard uncertainty"
     units: m
     coordinates: longitude latitude
-    comment: "algorithm uncertainty (error propagation) of the sea ice freeeboard retrieval"
+    comment: "algorithm uncertainty (error propagation) of the sea ice freeboard retrieval"
 
   sea_ice_freeboard_filtered:
     long_name: "smoothed freeboard of the sea ice layer"
