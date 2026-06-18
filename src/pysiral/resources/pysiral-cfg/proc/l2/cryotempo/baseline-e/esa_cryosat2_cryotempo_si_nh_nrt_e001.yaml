@@ -52,18 +52,13 @@ auxdata:
             exception_on_error: False
 
     - snow:
-        name: clim_w99amsr2
+        name: cryotempo_nh_clim
         options:
+            myi_fraction_var_name: "sitype"
             daily_scaling: True
             fyi_correction_factor: 0.5
             exception_on_error: False
 
-    # Note: The snow density in this class will overwrite the snow density
-    #       from the W99/AMSR2 climatology (this is intended)
-    - snow:
-            name: snow_density_seasonal_mallett
-            options:
-                snow_density_uncertainty: 50.
 
 
 # --- Level-2 processor steps ---

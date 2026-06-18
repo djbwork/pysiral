@@ -46,7 +46,7 @@ auxdata:
             latitude_range: [45.0, 90.0]
 
     - sic:
-        name: osisaf-operational
+        name: osi-408
         options:
             exception_on_error: False
             fill_pole_hole:
