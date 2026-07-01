@@ -292,7 +292,7 @@ procsteps:
                 sea_ice_freeboard_miz_gradient: 0.002
                 leading_edge_width_ocean_value: 2.5
 
-    # Create a filtered/smoothed version of sea-ice freeboard
+    # Create a filtered/smoothed version of sea ice freeboard
     -   module: filter
         pyclass: ParameterSmoother
         options:
@@ -305,7 +305,7 @@ procsteps:
                 filter_props:
                      it: 1
 
-    # Create a filtered/smoothed version of sea-ice freeboard
+    # Create a filtered/smoothed version of sea ice thickness
     -   module: filter
         pyclass: ParameterSmoother
         options:

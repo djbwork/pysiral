@@ -255,7 +255,7 @@ procsteps:
     -   module: sit
         pyclass: AlexandrovSeaIceDensity
         options:
-            myi_fraction_var_name: *sitype_var_name
+            myi_fraction_var_name: sitype
             fyi_density: 916.7
             myi_density: 882.0
             uncertainty:
@@ -308,7 +308,7 @@ procsteps:
                 filter_props:
                      it: 1
 
-    # Create a filtered/smoothed version of sea-ice freeboard
+    # Create a filtered/smoothed version of sea ice thickness
     -   module: filter
         pyclass: ParameterSmoother
         options:

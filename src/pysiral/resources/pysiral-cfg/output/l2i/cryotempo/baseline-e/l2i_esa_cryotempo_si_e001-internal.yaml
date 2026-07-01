@@ -146,6 +146,13 @@ variables:
     coordinates: longitude latitude
     comment: "Filtered with a 450km lowess filter"
 
+  sea_ice_thickness_filtered:
+    long_name: "smoothed thickness of the sea ice layer"
+    standard_name: sea_ice_thickness
+    units: m
+    coordinates: longitude latitude
+    comment: "Filtered with a 450km lowess filter"
+
   snow_depth:
     long_name: "snow depth"
     standard_name: surface_snow_thickness
