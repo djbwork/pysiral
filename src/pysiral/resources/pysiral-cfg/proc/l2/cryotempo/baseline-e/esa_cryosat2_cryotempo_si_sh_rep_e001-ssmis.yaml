@@ -1,5 +1,5 @@
 # Level-2 processor definition file for the ESA Cryo-TEMPO CryoSat-2 reprocessed Antarctic winter sea ice product
-# (Algorithm Baseline-E) - Only to be used after summer 2025
+# (Algorithm Baseline-E) - Only to be used before summer 2025
 
 metadata:
     label: "ESA CryoTEMPO CryoSat-2 reprocessed Antarctic sea ice product"
@@ -273,7 +273,7 @@ procsteps:
     -   module: sit
         pyclass: AlexandrovSeaIceDensity
         options:
-            myi_fraction_var_name: *sitype_var_name
+            myi_fraction_var_name: sitype
             fyi_density: 916.7
             myi_density: 882.0
             uncertainty:
@@ -302,7 +302,7 @@ procsteps:
             max_ocean_proximity: 150_000.0
             min_significant_waveheight: 3.2
 
-    # Create a filtered/smoothed version of sea-ice freeboard
+    # Create a filtered/smoothed version of sea ice freeboard
     -   module: filter
         pyclass: ParameterSmoother
         options:
@@ -315,7 +315,7 @@ procsteps:
                 filter_props:
                      it: 1
 
-    # Create a filtered/smoothed version of sea-ice freeboard
+    # Create a filtered/smoothed version of sea ice thickness
     -   module: filter
         pyclass: ParameterSmoother
         options:

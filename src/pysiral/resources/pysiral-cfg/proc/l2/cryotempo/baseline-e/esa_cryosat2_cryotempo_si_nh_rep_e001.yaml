@@ -299,7 +299,7 @@ procsteps:
             max_ocean_proximity: 150_000.0
             min_significant_waveheight: 3.2
 
-    # Create a filtered/smoothed version of sea-ice freeboard
+    # Create a filtered/smoothed version of sea ice thickness
     -   module: filter
         pyclass: ParameterSmoother
         options:
@@ -312,7 +312,7 @@ procsteps:
                 filter_props:
                      it: 1
 
-    # Create a filtered/smoothed version of sea-ice freeboard
+    # Create a filtered/smoothed version of sea ice thickness
     -   module: filter
         pyclass: ParameterSmoother
         options:
