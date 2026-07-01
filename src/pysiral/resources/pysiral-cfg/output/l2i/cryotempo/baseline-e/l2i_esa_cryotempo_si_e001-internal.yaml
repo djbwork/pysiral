@@ -251,6 +251,12 @@ variables:
     units: m
     coordinates: time
 
+  mean_sea_surface:
+    long_name: ""
+    standard_name: mean_sea_surface
+    units: m
+    coordinates: time
+
   sea_level_anomaly:
     long_name: "departure of instantaneous sea surface height from mean sea surface height"
     standard_name: sea_surface_height_above_mean_sea_level
@@ -393,4 +399,55 @@ variables:
     long_name: "distance to low ice concentration"
     units: m
     comment: "computed from gridded sea ice concentration mask (threshold 70%)"
+    coordinates: time
+
+  total_range_correction:
+    long_name: "total range correction"
+    units: "m"
+    comment: "sum of all atmospheric and tide corrections"
+    coordinates: time
+
+  dry_troposphere:
+    long_name: "dry troposphere range correction"
+    units: "m"
+    coordinates: time
+
+  wet_troposphere:
+    long_name: "wet troposphere range correction"
+    units: "m"
+    coordinates: time
+
+  dynamic_atmosphere:
+    long_name: "dynamic atmosphere range correction"
+    units: "m"
+    coordinates: time
+
+  ionosphere:
+    long_name: "ionospheric range correction"
+    units: "m"
+    coordinates: time
+
+  ocean_tide_elastic:
+    long_name: "ocean tide elastic range correction"
+    units: "m"
+    coordinates: time
+
+  ocean_tide_long_period:
+    long_name: "ocean tide long period range correction"
+    units: "m"
+    coordinates: time
+
+  ocean_loading_tide:
+    long_name: "ocean loading tide range correction"
+    units: "m"
+    coordinates: time
+
+  solid_earth_tide:
+    long_name: "solid earth tide range correction"
+    units: "m"
+    coordinates: time
+
+  geocentric_polar_tide:
+    long_name: "geocentric polar tide range correction"
+    units: "m"
     coordinates: time
