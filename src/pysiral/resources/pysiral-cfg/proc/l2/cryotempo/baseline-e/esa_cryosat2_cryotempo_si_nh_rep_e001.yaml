@@ -1,5 +1,5 @@
 # Level-2 processor definition file for the ESA Cryo-TEMPO CryoSat-2 reprocessed Arctic winter sea ice product
-# (Algorithm Baseline-E)
+# (Algorithm Baseline-E) - Only to be used after summer 2025
 
 metadata:
     label: "ESA Cryo-TEMPO CryoSat-2 reprocessed Arctic winter sea ice product"
