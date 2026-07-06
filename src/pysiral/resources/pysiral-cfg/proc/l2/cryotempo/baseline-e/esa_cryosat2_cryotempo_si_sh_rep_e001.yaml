@@ -272,7 +272,7 @@ procsteps:
     -   module: sit
         pyclass: AlexandrovSeaIceDensity
         options:
-            myi_fraction_var_name: sitype
+            myi_fraction_var_name: sea_ice_type
             fyi_density: 916.7
             myi_density: 882.0
             uncertainty:
