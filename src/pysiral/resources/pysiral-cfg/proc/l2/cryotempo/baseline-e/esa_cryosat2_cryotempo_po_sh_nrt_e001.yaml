@@ -132,16 +132,16 @@ procsteps:
 
                 - radar_mode: lrm
                   conditions:
-                      - "{sea_ice_concentration} < 15.0"
+                      - "{sea_ice_concentration} < 50.0"
 
                 - radar_mode: sar
                   conditions:
-                      - "{sea_ice_concentration} < 15.0"
+                      - "{sea_ice_concentration} < 50.0"
                       - "{pulse_peakiness_rolling_sdev} < 1.0"
 
                 - radar_mode: sin
                   conditions:
-                      - "{sea_ice_concentration} < 15.0"
+                      - "{sea_ice_concentration} < 50.0"
                       - "{pulse_peakiness_rolling_sdev} < 4.0"
 
             # Lead waveforms are classified based on sigma0, leading edge width
@@ -151,14 +151,14 @@ procsteps:
 
                 - radar_mode: sar
                   conditions:
-                      - "{sea_ice_concentration} >= 15.0"
+                      - "{sea_ice_concentration} >= 50.0"
                       - "{pulse_peakiness} >= 66.0"
                       - "{sigma0} >= 23.0"
                       - "{leading_edge_width} <= 0.75"
 
                 - radar_mode: sin
                   conditions:
-                      - "{sea_ice_concentration} >= 15.0"
+                      - "{sea_ice_concentration} >= 50.0"
                       - "{pulse_peakiness} >= 260.0"
                       - "{sigma0} >= 24.0"
                       - "{leading_edge_width} <= 1.05"
@@ -172,13 +172,13 @@ procsteps:
                 - radar_mode: sar
                   exclude: lead
                   conditions:
-                      - "{sea_ice_concentration} >= 15.0"
+                      - "{sea_ice_concentration} >= 50.0"
                       - "{leading_edge_quality} <= 1.02"
 
                 - radar_mode: sin
                   exclude: lead
                   conditions:
-                      - "{sea_ice_concentration} >= 15.0"
+                      - "{sea_ice_concentration} >= 50.0"
                       - "{leading_edge_quality} <= 1.02"
 
     # Retracking algorithm dependent on surface type
@@ -248,6 +248,7 @@ procsteps:
     -   module: sla
         pyclass: SLASmoothedLinear
         options:
+            surface_types_masks: ['land', 'land_ice', 'unknown']
             # Can't change this to True until we solve ocean SSB?
             use_ocean_wfm: True
             smooth_filter_width_m: 100000.0
@@ -268,6 +269,7 @@ procsteps:
     -   module: sla
         pyclass: SLARaw
         options:
+            surface_types_masks: ['land', 'land_ice', 'unknown']
             # True here so we can gauge the ocean retracking/SSB problem.
             use_ocean_wfm: True
 #            smooth_filter_width_m: 100000.0
