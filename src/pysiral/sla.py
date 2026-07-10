@@ -334,6 +334,7 @@ class SLABaseFunctionality(object):
         # Loop over all surface types and modify array in place
         for surface_type in surface_types:
             flag = l2.surface_type.get_by_name(surface_type)
+            logger.debug(f"Applying surface type mask for {surface_type} with {len(flag.indices)} records")
             sla[flag.indices] = np.nan
             sla_unc[flag.indices] = np.nan
         return sla, sla_unc
@@ -588,8 +589,12 @@ class SLASmoothedLinear(Level2ProcessorStep, SLABaseFunctionality):
         if len(np.where(mask)) > 0:
             sla[mask] = np.nan
             sla_unc[mask] = np.nan
+        
+        # Step 7: Apply sea-ice and land masks
+        surface_types = self.cfg.options.get("surface_types_masks", [])
+        sla, sla_unc = self.apply_surface_type_masks(sla, sla_unc, l2, surface_types)
 
-        # Step 7: Modify the Level-2 data container with the result in-place
+        # Step 8: Modify the Level-2 data container with the result in-place
         l2.sla.set_value(sla)
         l2.sla.set_uncertainty(sla_unc)
 
