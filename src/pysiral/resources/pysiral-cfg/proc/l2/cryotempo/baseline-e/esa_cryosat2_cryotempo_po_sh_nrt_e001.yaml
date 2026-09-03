@@ -333,3 +333,13 @@ procsteps:
     -   module: l2proc.procsteps
         pyclass: CS2InstrumentModeflag
         options: null
+
+   # Remove any finite values over non-ocean surfaces
+   -   module: filter
+       pyclass: RemoveNonOceanData
+       options:
+           target_variables:
+             - sea_level_anomaly
+             - dyanamic_ocean_topography
+             - sea_level_anomaly_filtered
+             - dynamic_ocean_topography_filtered

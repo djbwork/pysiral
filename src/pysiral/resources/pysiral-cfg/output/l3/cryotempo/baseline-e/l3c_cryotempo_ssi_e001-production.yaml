@@ -2,19 +2,19 @@
 
 # Metadata
 metadata:
-  output_id: l3c_tempo_e001
+  output_id: l3c_ssi_tempo_e001
   data_level: 3
   data_level_description: Level-3 colated (gridded geophysical parameters)
 
 # Output Definition (for each period definition)
 filenaming:
-  #month: "CS_OFFL_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m}_E001.nc"
-  month: "CS_OFFL_SIR_TDP_SI_{source_hemisphere:select;ARCTIC;ANTARC}_{time_coverage_start:%Y%m%dT%H%M%S}_{time_coverage_end:%Y%m%dT%H%M%S}_GRID_____E001.nc"
-  monthly: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m}-E001.nc"
-  isoweek: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001.nc"
-  day: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}-E001.nc"
-  custom: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001.nc"
-  default: "CS_OFF_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001.nc"
+  #month: "CS_OFFL_SIR_TDP_SS_{grid_id:uppercase}-{time_coverage_start:%Y%m}_E001.nc"
+  month: "CS_OFFL_SIR_TDP_SS_{source_hemisphere:select;ARCTIC;ANTARC}_{time_coverage_start:%Y%m%dT%H%M%S}_{time_coverage_end:%Y%m%dT%H%M%S}_GRID_____E001.nc"
+  monthly: "CS_OFF_SIR_TDP_SS_{grid_id:uppercase}-{time_coverage_start:%Y%m}-E001.nc"
+  isoweek: "CS_OFF_SIR_TDP_SS_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001.nc"
+  day: "CS_OFF_SIR_TDP_SS_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}-E001.nc"
+  custom: "CS_OFF_SIR_TDP_SS_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001.nc"
+  default: "CS_OFF_SIR_TDP_SS_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}_{time_coverage_end:%Y%m%d}-E001.nc"
 
 product_level_subfolder: l3c
 
@@ -25,7 +25,7 @@ grid_options:
 # A list of global attributes
 # (see: https://www.unidata.ucar.edu/software/thredds/current/netcdf-java/metadata/DataDiscoveryAttConvention.html)
 global_attributes:
-  - title: "Cryo-TEMPO Sea Ice Thematic Product"
+  - title: "Cryo-TEMPO Summer Sea Ice Thematic Product"
   - project: "ESA Cryo-TEMPO"
   - creator_name: "ESA Cryo-TEMPO Project"
   - creator_url: "http://cryosat.mssl.ucl.ac.uk/tempo"
@@ -38,9 +38,9 @@ global_attributes:
   - product_version: "001"
   - sw_version: "{pysiral_version}"  
   - processing_level: "Level-3 Collated (l3c)"
-  - id: "CS_OFFL_SIR_TDP_SI_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}-{time_coverage_end:%Y%m%d}-E001"
+  - id: "CS_OFFL_SIR_TDP_SS_{grid_id:uppercase}-{time_coverage_start:%Y%m%d}-{time_coverage_end:%Y%m%d}-E001"
   - keywords_vocabulary: "GCMD Science Keywords"
-  - doi: "10.5270/CR2-e2dd631"
+  - doi: "10.57780/esa-38d8c09"
   - cdm_data_type: "Grid"
   - date_created: "{utcnow:%Y%m%dT%H%M%SZ}"
   - geospatial_lat_min: "{geospatial_lat_min}"
@@ -86,6 +86,14 @@ variables:
     grid_mapping: "Lambert_Azimuthal_Grid"
     coordinates: "time lat lon"
 
+  radar_freeboard_filtered:
+    long_name: "Radar Freeboard Filtered"
+    standard_name: radar_freeboard
+    units: m
+    grid_mapping: "Lambert_Azimuthal_Grid"
+    coordinates: "time lat lon"
+    comment: "with along-track low-pass filter applied"
+
   sea_ice_freeboard:
     long_name: "Sea Ice Freeboard"
     standard_name: sea_ice_freeboard
@@ -102,7 +110,6 @@ variables:
     grid_mapping: "Lambert_Azimuthal_Grid"
     coordinates: "time lat lon"
     comment: ""
-
 
   sea_ice_freeboard_filtered:
     long_name: "Sea Ice Freeboard Filtered"
@@ -128,22 +135,6 @@ variables:
     grid_mapping: "Lambert_Azimuthal_Grid"
     coordinates: "time lat lon"
 
-  sea_ice_thickness:
-    long_name: "Sea Ice Thickness"
-    standard_name: sea_ice_thickness
-    units: m
-    grid_mapping: "Lambert_Azimuthal_Grid"
-    coordinates: "time lat lon"
-    ancillary_variables: "snow_density_uncertainty"
-
-  sea_ice_thickness_uncertainty:
-    var_source_name: sea_ice_thickness_l3_uncertainty
-    long_name: "Sea Ice Thickness Uncertainty"
-    standard_name: sea_ice_thickness standard_error
-    units: m
-    grid_mapping: "Lambert_Azimuthal_Grid"
-    coordinates: "time lat lon"
-
   instrument_mode:
     long_name: "radar mode flag"
     valid_min: 1
@@ -164,16 +155,5 @@ variables:
     flag_meanings: "Undefined_Region Central_Arctic Beaufort_Sea Chukchi_Sea East_Siberian_Sea Laptev_Sea Kara_Sea Barents_Sea East_Greenland_Sea Baffin_Bay_&_Labrador_Sea Gulf_of_St_Lawrence Hudson_Bay Canadian_Archipelago Bering_Sea Sea_of_Okhotsk Sea_of_Japan Bohai_Sea Baltic_Sea Gulf_of_Alaska Indian_Ocean Western_Pacific_Ocean, Ross_Sea Bellingshausen_Amundsen_Seas Weddell_Sea"
     flag_values: "0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 100, 101, 102, 103, 104"
     units: "1"
-    grid_mapping: "Lambert_Azimuthal_Grid"
-    coordinates: "time lat lon"
-
-  miz_flag:
-    long_name: Marginal Ice Zone Flag
-    standard_name: "quality_flag"
-    units: "1"
-    valid_min: 0
-    valid_max: 1
-    flag_values: "0 1"
-    flag_meanings: "not_in_miz miz"
     grid_mapping: "Lambert_Azimuthal_Grid"
     coordinates: "time lat lon"
