@@ -483,7 +483,7 @@ class SAMOSAPlus(BaseRetracker):
             self.misfit[index] = fit_result.misfit
             self.wind_speed[index] = func_wind_speed([fit_result.sigma0])
             self.oceanlike_flag[index] = fit_result.oceanlike_flag
-            if fit_result.nu == 0:
+            if fit_result.nu is None or fit_result.nu == 0:
                 self.mean_square_slope[index] = np.nan
             else:
                 self.mean_square_slope[index] = 1. / fit_result.nu
