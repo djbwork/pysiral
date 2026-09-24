@@ -475,26 +475,58 @@ class SAMOSAPlus(BaseRetracker):
 
         for index, fit_result in zip(indices, fit_results):
 
-            self._range[index] = fit_result.rng
-            self._power[index] = fit_result.sigma0
+            if fit_result is None or fit_result.rng is None or fit_result.sigma0 is None:
+                self._range[index] = np.nan
+                self._power[index] = np.nan
+                self.swh[index] = np.nan
+                self.misfit[index] = np.nan
+            else:
+                self._range[index] = fit_result.rng
+                self._power[index] = fit_result.sigma0
 
             # Store additional retracker parameters
-            self.swh[index] = fit_result.swh
-            self.misfit[index] = fit_result.misfit
-            self.wind_speed[index] = func_wind_speed([fit_result.sigma0])
-            self.oceanlike_flag[index] = fit_result.oceanlike_flag
+            if fit_result is None or fit_result.swh is None or fit_result.misfit is None:
+                self.swh[index] = np.nan
+                self.misfit[index] = np.nan
+                self.wind_speed[index] = np.nan
+                self.oceanlike_flag[index] = np.nan
+                self.mean_square_slope[index] = np.nan
+            else:
+                self.swh[index] = fit_result.swh
+                self.misfit[index] = fit_result.misfit
+                self.wind_speed[index] = func_wind_speed([fit_result.sigma0])
+                self.oceanlike_flag[index] = fit_result.oceanlike_flag
+                
             if fit_result.nu is None or fit_result.nu == 0:
                 self.mean_square_slope[index] = np.nan
             else:
                 self.mean_square_slope[index] = 1. / fit_result.nu
             if not SAMOSA_DEBUG_MODE:
-                self.epoch[index] = fit_result.epoch_sec
+                if fit_result.epoch_sec is None:
+                    self.epoch[index] = np.nan
+                else:
+                    self.epoch[index] = fit_result.epoch_sec
                 self.guess[index] = self._retracker_params["epoch0"][index]
-                self.Pu[index] = 65535.0 * fit_result.Pu/np.max(fit_result.wf)
-                self.pval[index] = fit_result.pval
-                self.cval[index] = fit_result.cval
-                self.rval[index] = fit_result.rval
-                self.kval[index] = fit_result.kval
+                if fit_result.Pu is None or fit_result.wf is None or np.max(fit_result.wf) == 0:
+                    self.Pu[index] = np.nan
+                else:
+                    self.Pu[index] = 65535.0 * fit_result.Pu/np.max(fit_result.wf)
+                if fit_result.pval is None:
+                    self.pval[index] = np.nan
+                else:
+                    self.pval[index] = fit_result.pval
+                if fit_result.cval is None:
+                    self.cval[index] = np.nan
+                else:
+                    self.cval[index] = fit_result.cval
+                if fit_result.rval is None:
+                    self.rval[index] = np.nan
+                else:
+                    self.rval[index] = fit_result.rval
+                if fit_result.kval is None:
+                    self.kval[index] = np.nan
+                else:
+                    self.kval[index] = fit_result.kval
 
     def _set_range_bias(self, radar_mode) -> None:
         """
