@@ -31,6 +31,95 @@ from pysiral.filter import fill_nan, idl_smooth
 from pysiral.l2data import L2DataArray
 from pysiral.l2proc.procsteps import Level2ProcessorStep
 
+# Raw SLA (tie-point) measurement uncertainty model (CryoTEMPO Polar Ocean, delivery of 2026-10-07)
+#
+#   Open ocean (LRM, SAR, SARIn):
+#       sigma = sqrt(sigma_min^2 + (alpha * SWH)^2 + (beta * eps_tilde)^2)
+#   Leads in sea ice (SAR, SARIn):
+#       sigma = sqrt(sigma_min^2 + (gamma * eps_tilde)^2 + (delta * (mean_square_slope / slope_ref)^0.25)^2)
+#
+# with eps_tilde = waveform misfit / eps_ref. LRM uses the MLE4 misfit, SAR/SARIn the SAMOSA+ misfit.
+# Coefficients calibrated 2026-10-06 from the CryoTEMPO extended-parameter TDS (v4.02). Values
+# can be overridden with the `uncertainty_coefficients` option of SLARaw.
+SLA_RAW_UNCERTAINTY_COEFFICIENTS = {
+    "open_ocean_lrm": {"sigma_min": 0.0647, "alpha": 0.018, "beta": 0.0, "eps_ref": 0.00276},
+    "open_ocean_sar": {"sigma_min": 0.0272, "alpha": 0.0094, "beta": 0.0498, "eps_ref": 2.1203},
+    "open_ocean_sarin": {"sigma_min": 0.0869, "alpha": 0.0348, "beta": 0.0289, "eps_ref": 3.6757},
+    "lead_sar": {"sigma_min": 0.0198, "gamma": 0.0, "delta": 0.0147, "slope_ref": 1e-07, "eps_ref": 6.5297},
+    "lead_sarin": {"sigma_min": 0.0323, "gamma": 0.0, "delta": 0.0183, "slope_ref": 1e-07, "eps_ref": 6.4758},
+}
+SLA_RAW_UNCERTAINTY_SLOPE_EXPONENT = 0.25
+SLA_RAW_UNCERTAINTY_SLOPE_VALID_RANGE = (1e-9, 1e-2)
+SLA_RAW_UNCERTAINTY_SWH_VALID_MAX = 25.0
+SLA_RAW_UNCERTAINTY_SWH_NEGATIVE_TOLERANCE = -1.0
+
+
+def sla_raw_measurement_uncertainty(
+        radar_mode: npt.NDArray,
+        is_ocean: npt.NDArray,
+        is_lead: npt.NDArray,
+        swh: npt.NDArray,
+        misfit_samosa: npt.NDArray,
+        mean_square_slope: npt.NDArray,
+        misfit_mle4: tp.Optional[npt.NDArray] = None,
+        coefficients: tp.Optional[tp.Dict[str, tp.Dict[str, float]]] = None
+) -> npt.NDArray:
+    """
+    Measurement uncertainty of the raw sea level anomaly (sigma_meas of the CryoTEMPO
+    Polar Ocean uncertainty model). The population (open ocean LRM/SAR/SARIn, leads
+    SAR/SARIn) is selected per record by radar mode and surface type. Records of no
+    population, or with invalid inputs, are NaN.
+
+    :param radar_mode: pysiral radar mode flag (0: LRM, 1: SAR, 2: SARIn)
+    :param is_ocean: True for open ocean records
+    :param is_lead: True for lead records
+    :param swh: significant wave height (m)
+    :param misfit_samosa: SAMOSA+ waveform misfit
+    :param mean_square_slope: SAMOSA+ mean square slope
+    :param misfit_mle4: MLE4 waveform misfit (LRM only, NaN uncertainty for LRM if None)
+    :param coefficients: model coefficients (default: SLA_RAW_UNCERTAINTY_COEFFICIENTS)
+
+    :return: measurement uncertainty (m)
+    """
+    coefficients = SLA_RAW_UNCERTAINTY_COEFFICIENTS if coefficients is None else coefficients
+    n_records = radar_mode.shape[0]
+    if misfit_mle4 is None:
+        misfit_mle4 = np.full(n_records, np.nan)
+
+    # Screen significant wave height: small negatives set to zero, implausible values to NaN
+    swh = np.where((swh < 0) & (swh >= SLA_RAW_UNCERTAINTY_SWH_NEGATIVE_TOLERANCE), 0.0, swh)
+    swh = np.where((swh >= 0) & (swh <= SLA_RAW_UNCERTAINTY_SWH_VALID_MAX), swh, np.nan)
+
+    # Lead roughness term, NaN for mean square slope outside the physically admissible range
+    slope_min, slope_max = SLA_RAW_UNCERTAINTY_SLOPE_VALID_RANGE
+    valid_slope = (mean_square_slope >= slope_min) & (mean_square_slope <= slope_max)
+    mean_square_slope = np.where(valid_slope, mean_square_slope, np.nan)
+
+    # LRM is always treated as open ocean
+    is_lrm, is_sar, is_sarin = radar_mode == 0, radar_mode == 1, radar_mode == 2
+    populations = {
+        "open_ocean_lrm": (is_lrm, misfit_mle4),
+        "open_ocean_sar": (is_sar & is_ocean, misfit_samosa),
+        "open_ocean_sarin": (is_sarin & is_ocean, misfit_samosa),
+        "lead_sar": (is_sar & is_lead, misfit_samosa),
+        "lead_sarin": (is_sarin & is_lead, misfit_samosa),
+    }
+
+    sigma = np.full(n_records, np.nan)
+    for key, (mask, misfit) in populations.items():
+        if not mask.any():
+            continue
+        c = coefficients[key]
+        eps_tilde = misfit[mask] / c["eps_ref"]
+        if key.startswith("lead"):
+            roughness = (mean_square_slope[mask] / c["slope_ref"]) ** SLA_RAW_UNCERTAINTY_SLOPE_EXPONENT
+            variance = c["sigma_min"] ** 2 + (c["gamma"] * eps_tilde) ** 2 + (c["delta"] * roughness) ** 2
+        else:
+            variance = c["sigma_min"] ** 2 + (c["alpha"] * swh[mask]) ** 2 + (c["beta"] * eps_tilde) ** 2
+        sigma[mask] = np.sqrt(variance)
+
+    return sigma
+
 
 def marine_segment_filter(l2, minimum_lead_number, footprint_size, use_ocean_wfm):
     """
@@ -727,8 +816,12 @@ class SLARaw(Level2ProcessorStep, SLABaseFunctionality):
             l2.sla_raw.set_uncertainty(all_nans)
             return np.isnan(l2.sla_raw[:])
 
-        # Step 2: Get sla = elev - mss
-        sla_raw, sla_raw_unc = self.sla_from_raw_process(l2, ssh_tiepoint_indices)
+        # Step 2: Get sla = elev - mss and its measurement uncertainty
+        coefficients = self.cfg.options.get("uncertainty_coefficients", None)
+        lrm_misfit_parameter = self.cfg.options.get("uncertainty_lrm_misfit_parameter", None)
+        sla_raw, sla_raw_unc = self.sla_from_raw_process(
+            l2, ssh_tiepoint_indices, coefficients=coefficients, lrm_misfit_parameter=lrm_misfit_parameter
+        )
 
         # Step 3: Apply sea-ice and land masks
         surface_types = self.cfg.options.get("surface_types_masks", [])
@@ -742,20 +835,51 @@ class SLARaw(Level2ProcessorStep, SLABaseFunctionality):
         return np.isnan(l2.sla_raw[:])
 
     @staticmethod
-    def sla_from_raw_process(l2, ssh_tiepoint_indices):
+    def sla_from_raw_process(l2, ssh_tiepoint_indices, coefficients=None, lrm_misfit_parameter=None):
         """
-        Compute sea level anomaly
+        Compute sea level anomaly and its measurement uncertainty at the ssh tie points
+        (see `sla_raw_measurement_uncertainty`). Requires the SAMOSA+ auxiliary parameters
+        (samosa_swh, samosa_misfit, samosa_mean_square_slope) in the l2 data object.
 
         :param l2:
         :param ssh_tiepoint_indices:
+        :param coefficients: uncertainty model coefficients (default: SLA_RAW_UNCERTAINTY_COEFFICIENTS)
+        :param lrm_misfit_parameter: name of the l2 parameter with the MLE4 misfit for LRM records
         :return:
         """
 
         # Step 1: Get the observed (noisy) sea surface elevations
         sla_raw = np.full(l2.n_records, np.nan)
         sla_raw[ssh_tiepoint_indices] = l2.elev[ssh_tiepoint_indices] - l2.mss[ssh_tiepoint_indices]
-        # FIXME Need an actual error estimate, but how?
-        sla_unc = np.zeros(sla_raw.shape)
+
+        # Step 2: Measurement uncertainty at the tie points
+        def get_parameter(name):
+            parameter = l2.get_parameter_by_name(name, raise_on_error=False)
+            return np.asarray(parameter[ssh_tiepoint_indices], dtype=float)
+
+        missing = [name for name in ("samosa_swh", "samosa_misfit", "samosa_mean_square_slope")
+                   if name not in l2.auxvar_names]
+        if missing:
+            logger.warning(f"Missing input for raw SLA uncertainty: {missing} -> NaN uncertainty")
+
+        radar_mode = np.asarray(l2.radar_mode[ssh_tiepoint_indices])
+        misfit_mle4 = None
+        if lrm_misfit_parameter is not None:
+            misfit_mle4 = get_parameter(lrm_misfit_parameter)
+        elif np.any(radar_mode == 0):
+            logger.warning("LRM tie points but no MLE4 misfit parameter -> NaN uncertainty for LRM")
+
+        sla_unc = np.full(l2.n_records, np.nan)
+        sla_unc[ssh_tiepoint_indices] = sla_raw_measurement_uncertainty(
+            radar_mode,
+            l2.surface_type.ocean.flag[ssh_tiepoint_indices],
+            l2.surface_type.lead.flag[ssh_tiepoint_indices],
+            get_parameter("samosa_swh"),
+            get_parameter("samosa_misfit"),
+            get_parameter("samosa_mean_square_slope"),
+            misfit_mle4=misfit_mle4,
+            coefficients=coefficients
+        )
 
         # Return the two parameters
         return sla_raw, sla_unc
