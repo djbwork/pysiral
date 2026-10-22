@@ -306,7 +306,7 @@ procsteps:
         pyclass: RemoveNonOceanData
         options:
             target_variables:
-                - sea_level_anomaly
-                - dynamic_ocean_topography
-                - sea_level_anomaly_filtered
-                - dynamic_ocean_topography_filtered
+              - sea_level_anomaly
+              - dynamic_ocean_topography
+              - sea_level_anomaly_filtered
+              - dynamic_ocean_topography_filtered

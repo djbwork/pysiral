@@ -108,8 +108,9 @@ level1_preprocessor:
                     - ["nc", "fes2014b.nc"]
                     - ["TEST", "'LTA_"]
                 tide_variable_name_mapping:  # <L1 variable name>: <tide file variable name>
-                    ocean_tide_elastic: ocean_tide_FES22
-                    ocean_loading_tide: load_tide_FES22
+                    ocean_tide_elastic: ocean_tide_20
+                    ocean_loading_tide: load_tide_20
+                    ocean_tide_long_period: ocean_tide_eq_20
                 tide_file_nan_policy: "fill"  # Options: `fill` (with l1b), `interpolate`, `ignore`
 
             # Resample SIN waveforms to the same size as SAR waveforms
