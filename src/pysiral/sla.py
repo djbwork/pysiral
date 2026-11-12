@@ -1059,6 +1059,10 @@ class SLARaw(Level2ProcessorStep, SLABaseFunctionality):
             l2, ssh_tiepoint_indices, coefficients=coefficients, lrm_misfit_parameter=lrm_misfit_parameter
         )
 
+        # Optional: mask the raw sla where its uncertainty could not be computed
+        if self.cfg.options.get("mask_by_uncertainty", False):
+            sla_raw[np.isnan(sla_raw_unc)] = np.nan
+
         # Step 3: Apply sea-ice and land masks
         surface_types = self.cfg.options.get("surface_types_masks", [])
         sla_raw, sla_raw_unc = self.apply_surface_type_masks(sla_raw, sla_raw_unc, l2, surface_types)
