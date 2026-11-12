@@ -4,7 +4,7 @@
 metadata:
     label: "ESA CryoTEMPO CryoSat-2 reprocessed polar ocean product"
     product_line: cryotempo
-    record_type: po-rep-tds
+    record_type: po-rep-tds-a
     platform: cryosat2
     version: F001
     file_version_tag: "F001"
@@ -180,7 +180,9 @@ procsteps:
                 pyclass: SAMOSAPlus
                 options:
                     # if arrays than [lrm, sar, sin]
-                    range_bias: [0.0, 0.0, 0.0]
+                    # Empirically derived for Baseline C by DTU
+                    # Positive bias is SUBTRACTED from range
+                    range_bias: [0.0, 0.05, 0.025]
                     surface_type: "polar_ocean"
                     uncertainty:
                         type: fixed
@@ -190,7 +192,9 @@ procsteps:
                 pyclass: SAMOSAPlus
                 options:
                     # if arrays than [lrm, sar, sin]
-                    range_bias: [0.0, 0.0, 0.0]
+                    # Empirically derived for Baseline C by DTU
+                    # Positive bias is SUBTRACTED from range
+                    range_bias: [0.0, 0.05, 0.025]
                     surface_type: "polar_ocean"
                     uncertainty:
                         type: fixed
@@ -242,10 +246,11 @@ procsteps:
         options:
             # True here so we can gauge the ocean retracking/SSB problem.
             use_ocean_wfm: True
+            mask_by_uncertainty: true
 #            smooth_filter_width_m: 100000.0
 #            smooth_filter_width_footprint_size: 300.0
 #            pre_filtering: true
-            filter_max_mss_offset_m: 3.0 # in meter
+            filter_max_mss_offset_m: 1.0 # in meter
 #            uncertainty_tiepoints_distance_max: 100000.
 #            uncertainty_minimum: 0.02
 #            uncertainty_maximum: 0.10
