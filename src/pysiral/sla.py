@@ -1033,9 +1033,16 @@ class SLARaw(Level2ProcessorStep, SLABaseFunctionality):
         # Step 1: Get a list of valid SSH tie points
         # This method will return a list of indices for all SSH observations
         # with an optional pre-filtering step
-        # filter_max_mss_offset_m = self.cfg.options.get("filter_max_mss_offset_m", None)
         use_ocean_wfm = self.cfg.options.get("use_ocean_wfm", False)
         ssh_tiepoint_indices = self.get_ssh_tiepoints_indices(l2.surface_type, l2.elev, use_ocean_wfm)
+
+        # Optional MSS offset filter: remove tie points with |elev - mss| > filter_max_mss_offset_m
+        # (no filtering if the option is not set)
+        filter_max_mss_offset_m = self.cfg.options.get("filter_max_mss_offset_m", None)
+        if filter_max_mss_offset_m is not None:
+            sla_observed = l2.elev[ssh_tiepoint_indices] - l2.mss[ssh_tiepoint_indices]
+            valid = np.where(np.abs(sla_observed) <= filter_max_mss_offset_m)[0]
+            ssh_tiepoint_indices = ssh_tiepoint_indices[valid]
 
         # Verification that there is any ssh tie points
         # -> Will return all NaN sla if not
